@@ -68,6 +68,10 @@ class TrainConfig:
     tie_word_embeddings: bool = False
     deterministic: bool = False
     perturb_one_token: bool = False
+    # Generalized perturbation: shift perturb_num_tokens tokens by +1 (mod vocab),
+    # starting at position 100 of the first sequence of the batch used at perturb_step.
+    perturb_step: int = 0
+    perturb_num_tokens: int = 0
     wandb_tags: tuple[str, ...] = field(default_factory=tuple)
     wandb_online: bool = True
     force_run: bool = False
@@ -159,6 +163,8 @@ def training_run_name(config):
         run_name += "-deterministic"
     if config.perturb_one_token != TrainConfig.perturb_one_token:
         run_name += "-perturb1tok"
+    if config.perturb_num_tokens:
+        run_name += f"-perturb{config.perturb_num_tokens}tok-step{config.perturb_step}"
     if config.data_seed != TrainConfig.data_seed:
         if config.data_seed is None:
             run_name += "-dsnone"
@@ -404,6 +410,13 @@ def train(config):
         first_input_ids = train_dataset[0]["input_ids"]
         assert int(first_input_ids[100]) != 17
         first_input_ids[100] = 17
+    if config.perturb_num_tokens:
+        seq_len = len(train_dataset[0]["input_ids"])
+        first_row = config.perturb_step * config.batch_size
+        vocab_size = resolve_model_config(config.model_name, config.model_config).vocab_size
+        for offset in range(100, 100 + config.perturb_num_tokens):
+            row = train_dataset[first_row + offset // seq_len]["input_ids"]
+            row[offset % seq_len] = (int(row[offset % seq_len]) + 1) % vocab_size
     effective_train_sequences = len(train_dataset)
     seq_len = len(train_dataset[0]["input_ids"])
     train_tokens = effective_train_sequences * seq_len
