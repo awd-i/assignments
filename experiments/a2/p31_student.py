@@ -1,6 +1,11 @@
 """Student entry point for P4.1. Complete the two functions below."""
 import argparse
+import os
 from experiments.a2.stress import StressConfig, load_tokens, run
+from experiments.a2.awd.p41_policies import make
+
+# Policy: kaiming | mup | depth-mup | completep (see experiments/a2/awd/p41_policies.py).
+_INIT, _GROUPS = make(os.environ.get('A2_POLICY', 'mup'))
 
 
 def initialize(model):
@@ -9,7 +14,7 @@ def initialize(model):
     Set model.output_multiplier and each block.residual_multiplier if needed.
     This function runs under torch.no_grad() with the requested seed.
     """
-    raise NotImplementedError('Fill in initialization and forward multipliers from your derivation.')
+    _INIT(model)
 
 
 def parameter_groups(model, base_lr):
@@ -18,7 +23,7 @@ def parameter_groups(model, base_lr):
     Every model parameter must occur exactly once. Construct the groups using
     model.named_parameters(); the runner supplies Adam, fixed betas, and WD=0.
     """
-    raise NotImplementedError('Fill in the per-group learning rates and Adam stabilizers.')
+    return _GROUPS(model, base_lr)
 
 
 def main(argv=None):
