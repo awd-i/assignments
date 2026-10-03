@@ -15,7 +15,7 @@ LABEL = "CS 312 Assignment 2"
 
 title = ParagraphStyle("title", fontName="Helvetica-Bold", fontSize=26, leading=32, spaceAfter=18)
 h1 = ParagraphStyle("h1", fontName="Helvetica", fontSize=17, leading=22, spaceBefore=8, spaceAfter=8)
-body = ParagraphStyle("body", fontName="Helvetica", fontSize=10.5, leading=15, spaceAfter=6)
+body = ParagraphStyle("body", fontName="Helvetica", fontSize=10, leading=13.5, spaceAfter=6)
 bullet_style = ParagraphStyle("bullet", parent=body, spaceAfter=2)
 cell = ParagraphStyle("cell", fontName="Helvetica", fontSize=9.5, leading=12.5)
 cell_bold = ParagraphStyle("cellb", parent=cell, fontName="Helvetica-Bold")
@@ -73,7 +73,7 @@ def P1C_SECTION():
                ["Val loss", "2.7165", "2.7166", "2.7173", "2.7189", "2.7282"],
                ["Gap to best grid LR", "0", "<b>+0.0001</b>", "+0.0009", "<b>+0.0025</b>", "+0.0117"]],
               [1.3 * inch, 0.7 * inch, 1.3 * inch, 0.7 * inch, 1.2 * inch, 0.7 * inch]),
-        figure("p1c_two_fits.png", width=5.6 * inch,
+        figure("p1c_two_fits.png", width=4.6 * inch,
                text="Both fits extrapolated to 4.9152B with the measured target optimum (star). Inset: target loss minus "
                     "best grid loss (teal: larger-three prediction, orange: all-six prediction)."),
         bullets("<b>Fitted target optimum: 2.00e-3</b> (parabola through the grid; 80% interval 0.8-2.6e-3). The larger-three "
@@ -109,7 +109,7 @@ def P1D_SECTION():
         table([["LR", "5.7e-3", "8.0e-3", "1.14e-2 (predicted)", "1.6e-2"],
                ["Val loss at 1.2288B", "2.8466", "2.8322", "<b>2.8279</b>", "2.8385"]],
               [1.5 * inch, 0.9 * inch, 0.9 * inch, 1.5 * inch, 0.9 * inch]),
-        figure("p1d_hyperball_vs_adamw.png", width=6.6 * inch,
+        figure("p1d_hyperball_vs_adamw.png", width=5.9 * inch,
                text="Left: loss vs LR, Hyperball (solid) vs AdamW (dashed). Right: optimum normalised to its 153.6M value."),
         bullets("<b>The prediction was the best sampled LR</b> (loss gap 0). A parabola through the four target points "
                 "puts the optimum at 1.03e-2, 9% below the prediction and between my two source fits. Hyperball's best "
@@ -128,19 +128,123 @@ def P1D_SECTION():
 
 
 def P1_SYNTHESIS():
-    return para("Pending.")
+    return para("For AdamW with a linear schedule the optimal peak LR is nearly budget-independent: it rises ~35% from "
+                "153.6M to ~1.2B tokens and then falls (2.9e-3 at 2.5B, 2.0e-3 at 4.9B), while the loss-LR curve "
+                "flattens so much that a 2x LR error costs only ~0.01 at large budgets. Short-range power laws therefore "
+                "extrapolate poorly when the trend changes regime; fitting only the nearby regime (higher variance, lower "
+                "bias) predicted 4.9B well. Hyperball, which fixes weight norms, has an optimum that moves monotonically "
+                "and predictably with budget (its 1.2288B prediction was the best sampled LR), consistent with weight-norm "
+                "dynamics (LR x WD) being one source of AdamW's irregular optimum. The peak LR transfers across "
+                "linear and cosine schedules to within ~15%.")
 
 
 def P2C_SECTION():
-    return [sec("Problem 2c: Test the joint rule")] + pending("P2(c)")
+    return [
+        sec("Problem 2c: Test the joint rule"),
+        para("<b>Fit.</b> Product law on {.1536, .3072, .6144, 1.2288}B: LR* x WD* ~ D^-0.59, predicting 2.78e-4 at 2.4576B, "
+             "so at peak LR .003 the rule gives <b>WD = .0927</b>. All runs linear decay, 2.4576B tokens (held out)."),
+        table([["Recipe at 2.4576B", "Peak LR", "WD", "Val loss", "Rule's gap"],
+               ["Product rule", ".003", ".0927", "<b>2.7693</b>", "-"],
+               ["(i) best 153.6M pair, no retuning", ".0015", "1.6", "2.8526", "-0.0834 (rule better)"],
+               ["(ii) WD sweep at LR .003", ".003", ".05 / .1 / .2", "2.7723 / <b>2.7683</b> / 2.7729",
+                "+0.0010 vs best (WD .1, supplied run)"]],
+              [2.2 * inch, 0.6 * inch, 0.9 * inch, 1.6 * inch, 1.5 * inch]),
+        bullets("<b>The product rule gives an effective recipe</b>: without any tuning at the target it lands within 0.001 "
+                "of the best of a three-point WD sweep (well inside seed noise, sd ~0.003) and is 0.083 better than reusing "
+                "the small-budget optimum.",
+                "Reusing (.0015, 1.6) fails because its LR x WD (2.4e-3) is ~9x too large at 2.46B: the AdamW averaging "
+                "window is ~400 of 37,500 updates, so the weights effectively forget most of training.",
+                "<b>Caveat:</b> the rule's WD (.093) happens to be next to the default .1, so this target cannot distinguish "
+                "it from 'use the default'; the rule's value is that it predicts the right WD at budgets where the default "
+                "is badly wrong (WD* ~ .85 at 153.6M, where tuning WD gained 0.045)."),
+    ]
 
 
 def P2_SYNTHESIS():
-    return para("Pending.")
+    return para("In AdamW, LR and WD act largely through their product, which sets the averaging timescale 1/(LR x WD) "
+                "of the weights. Contours of loss are tilted ellipses along roughly constant-product lines, the optimal WD "
+                "(and the product) follow clean power laws in the token budget (WD* ~ D^-0.82, R^2 0.994; product "
+                "~ D^-0.59, R^2 0.967) while the optimal LR alone does not, and the benefit of tuning WD shrinks from "
+                "0.045 at 153.6M to 0.002 at 1.2B. Scaling the product with budget gives a working recipe at a held-out "
+                "2x larger budget (within 0.001 of a WD sweep), whereas reusing a small-budget optimum costs 0.083. "
+                "The same coupling reappears in Problem 3.2 (WD ~ B at fixed LR) and Problem 4.2 (muP's eta/m also "
+                "rescales hidden-matrix decay).")
 
 
 def P32_SECTION():
-    return [sec("Problem 3.2: Batch size in the language model")] + pending("P3.2")
+    return [
+        sec("Problem 3.2: What should scale when batch size changes?"),
+        para("<b>Setup.</b> Default d8 recipe at 614.4M tokens, microbatches of min(B, 64) sequences (B = 128 / 256 use "
+             "2 / 4 accumulation steps and skip 64 / 192 sequences: 0.011% / 0.032% of tokens). B = 64 points reuse the "
+             "supplied P1a (WD .1) and P2a (LR .0015) runs. Diagnostics off. 31 new runs (p32_analysis.py)."),
+        figure("p32_ab.png", width=6.2 * inch,
+               text="Loss vs LR at WD .1 and vs WD at LR .0015 per batch, fitted optima vs batch with source fits "
+                    "(B <= 64), and best measured loss vs batch."),
+        sub("(a) LR sweep at WD .1."),
+        table([["Batch", "8", "16", "32", "64"],
+               ["Fitted LR*", "1.06e-3", "1.73e-3", "3.26e-3", "3.19e-3"],
+               ["Best measured loss", "2.9367", "2.9228", "2.9193", "2.9256"]],
+              [1.6 * inch, 1.0 * inch, 1.0 * inch, 1.0 * inch, 1.0 * inch]),
+        bullets("The optimal LR grows like sqrt(B) from 8 to 32 (overall fit B^0.57) and then saturates between 32 and 64.",
+                "At fixed tokens, performance is U-shaped in batch: best at B = 32-64 (best measured overall 2.9178), "
+                "worse at small batch (noise) and at large batch (fewer updates)."),
+        sub("(b) Two scaling hypotheses (predictions pre-registered in p32b_preregistered_predictions.md)."),
+        bullets("<b>(i) WD .1 fixed, scale LR:</b> LR* ~ B^0.57 predicts 5.59e-3 at B = 128 and 8.28e-3 at B = 256.",
+                "<b>(ii) LR .0015 fixed, scale WD:</b> fitted WD* = 0.065, 0.12, 0.24, 0.50 at B = 8-64, i.e. WD* ~ B^0.98, "
+                "predicting 0.95 at B = 128 and 1.86 at B = 256."),
+        table([["Target", "Hyp (i): LR .003 / pred / 2 x pred", "Hyp (ii): WD pred/2 / pred / 2 x pred", "(ii) - (i), best vs best"],
+               ["B = 128", "2.9500 / 2.9608 / 3.0015", "2.9446 / <b>2.9332</b> / 2.9430", "-0.017"],
+               ["B = 256", "3.0154 / 3.1213 / 3.1405", "2.9854 / <b>2.9680</b> / 2.9886", "-0.047"]],
+              [0.8 * inch, 2.2 * inch, 2.3 * inch, 1.4 * inch]),
+        bullets("<b>Hypothesis (ii) transfers better</b>: its predicted WD is the best sampled point at both target batches, "
+                "and beats hypothesis (i)'s best by 0.017 and 0.047. Hypothesis (i)'s power law overshoots (the predicted "
+                "LR costs +0.011 and +0.106 vs simply keeping .003), as pre-registered: the LR optimum had already "
+                "flattened between B = 32 and 64.",
+                "<b>Why:</b> with decoupled WD the weights average over 1/(LR x WD) updates = B/(LR x WD) tokens. Holding "
+                "that window fixed in tokens gives WD ~ B at fixed LR, with no stability limit, whereas raising the LR "
+                "eventually hits the curvature / step-count limit (the NQM's breakdown). This is the same coupling as "
+                "Problem 2's product law.",
+                "<b>Agreement with the NQM:</b> the sqrt(B) LR rule for Adam and its saturation past a critical batch agree "
+                "with 3.1(b, c); the WD rule is outside the NQM, which has no weight decay."),
+        sub("(c) Momentum ablation (best LR-WD pair per batch held fixed, beta2 .95)."),
+        table([["beta1", "0", "0.5", "0.8", "0.9", "0.95", "0.98"],
+               ["B = 8 (LR .0015, WD .05)", "2.9772", "2.9605", "2.9464", "2.9358", "<b>2.9314</b>", "2.9339"],
+               ["B = 256 (LR .0015, WD 1.86)", "3.2165", "3.0696", "2.9878", "2.9680", "<b>2.9672</b>", "3.0200"]],
+              [1.9 * inch, 0.65 * inch, 0.65 * inch, 0.65 * inch, 0.65 * inch, 0.7 * inch, 0.65 * inch]),
+        figure("p32c_momentum.png", width=4.4 * inch, text="Loss vs beta1 and cost relative to beta1 = .9."),
+        bullets("<b>Removing momentum costs 6x more at large batch</b> (+0.249 at B = 256 vs +0.041 at B = 8), as the NQM "
+                "predicts: with little gradient noise, training is curvature-limited and momentum accelerates it.",
+                "<b>Too much momentum hurts only at large batch</b> (beta1 .98: +0.052 at B = 256 with 2,344 updates, "
+                "+0.002 relative to .95 at B = 8 with 75,000 updates): an averaging window of ~50 updates lags when there "
+                "are few updates, as in the NQM's 32-update case.",
+                "<b>Unlike the NQM, momentum still helps at small batch.</b> We held LR fixed (the NQM comparison retuned "
+                "it), but Adam's update is normalised, so beta1 is not just an LR rescaling: averaging across steps "
+                "reduces the noise of the update direction, which dominates at B = 8."),
+        sub("(d) What does the NQM explain?"),
+        table([["Question", "NQM prediction", "LM measurement", "Verdict"],
+               ["LR vs batch (Adam)", "LR* ~ sqrt(B) while noise dominates; saturates past a critical batch",
+                "sqrt(B) from 8 to 32; .003 best at 64, 128 and 256", "Agrees"],
+               ["Loss vs batch, fixed tokens", "Flat, then worse past the critical batch",
+                "Best at 32-64 (2.918); B = 256 +0.050", "Agrees"],
+               ["WD vs batch", "Not modelled", "WD* ~ B^0.98; transfers to 128/256", "Effect not modelled"],
+               ["Momentum, large batch", "Large benefit; too much hurts with few updates", "+0.249 without; beta1 .98 +0.052",
+                "Agrees"],
+               ["Momentum, small batch", "Little benefit after LR retuning", "+0.041 without (LR held fixed)",
+                "Prediction fails (partly protocol)"]],
+              [1.3 * inch, 1.9 * inch, 1.9 * inch, 1.2 * inch]),
+        para("<b>Failed prediction vs unmodelled effect.</b> The small-batch momentum result contradicts a definite NQM "
+             "prediction; the WD scaling is simply outside the model. <b>Change to the NQM:</b> add decoupled weight decay "
+             "and a drifting optimum (the target moves as new examples arrive). The model then needs an averaging window "
+             "of fixed length in examples, which yields WD ~ B at fixed LR and explains why scaling WD transfers when "
+             "scaling LR does not."),
+        sub("Synthesis (Problem 3)."),
+        para("Batch size trades gradient noise against the number of updates. The NQM correctly predicts the square-root "
+             "LR rule for Adam, its breakdown past a critical batch (~32-64 here at 614.4M tokens), and that momentum "
+             "matters most at large batch. What it misses is weight decay: the most reliable batch rule in the language "
+             "model is to keep the AdamW averaging window fixed in tokens, i.e. scale WD linearly with batch at fixed "
+             "LR, which transferred to 4x larger batches with its prediction landing on the best sampled point."),
+        PageBreak(),
+    ]
 
 
 def P41_SECTION():
@@ -160,14 +264,14 @@ def P41_SECTION():
                ["2560", "1.63e-4", "7.13", "1.49e-3", "6.60", "8.28 / 6.68"],
                ["5120", "5.3e-5", "7.32", "1.46e-3", "6.58", "10.10 / 6.67"]],
               [0.6 * inch, 0.95 * inch, 1.15 * inch, 0.8 * inch, 1.0 * inch, 2.1 * inch]),
-        figure("p41_width_curves.png", width=6.0 * inch, text="Loss after 5 updates vs base LR (stars: fitted optima)."),
-        figure("p41_width_transfer.png", width=5.2 * inch, text="Fitted optimal base LR and minimum loss vs width."),
+        figure("p41_width_curves.png", width=5.4 * inch, text="Loss after 5 updates vs base LR (stars: fitted optima)."),
+        figure("p41_width_transfer.png", width=4.2 * inch, text="Fitted optimal base LR and minimum loss vs width."),
         bullets("<b>muP transfers its base LR</b> (10% change over 8x width) while Kaiming's optimum falls 21x (steeper than "
                 "1/m). Reusing the width-640 LR at width 5120 costs Kaiming 3.2 nats and muP nothing.",
                 "<b>muP also achieves lower loss and improves with width</b> (6.83 to 6.58); Kaiming gets worse with width (6.94 "
                 "to 7.32) because stability forces a tiny LR at which hidden features barely move."),
         sub("(b) Width probes (best sampled LR of each configuration)."),
-        figure("p41_width_probes.png", width=6.8 * inch,
+        figure("p41_width_probes.png", width=6.1 * inch,
                text="Logit RMS, final-norm feature movement M_t, mean update alignment per matrix type, and omega_move."),
         bullets("<b>Feature movement</b> after 5 updates: muP 1.09 / 1.04 / 1.01 across widths (feature learning preserved); "
                 "Kaiming 1.08 / 0.64 / 0.53 (vanishing with width).",
@@ -187,8 +291,8 @@ def P41_SECTION():
                ["100", "1.90e-2 / 7.06", "1.72e-2 / 6.91", "1.58e-2 / 6.82"],
                ["1000", "1.94e-2 / 7.13", "2.02e-2 / 6.88", "1.52e-2 / 6.82"]],
               [0.7 * inch, 1.6 * inch, 1.7 * inch, 1.7 * inch]),
-        figure("p41_depth_curves.png", width=6.4 * inch, text="Loss vs base LR at depths 2, 100, 1000 per prescription."),
-        figure("p41_depth_probes.png", width=6.8 * inch,
+        figure("p41_depth_curves.png", width=5.8 * inch, text="Loss vs base LR at depths 2, 100, 1000 per prescription."),
+        figure("p41_depth_probes.png", width=6.1 * inch,
                text="Residual RMS before the final norm, last-block FFN branch RMS (before c_L), midpoint normalized-feature "
                     "movement, and omega_move at the best sampled LR."),
         bullets("<b>All three prescriptions transfer the LR within ~15% over 500x depth</b>, but <b>better or equal transfer "
@@ -214,11 +318,135 @@ def P41_SECTION():
 
 
 def P42_SECTION():
-    return [sec("Problem 4.2: From five updates to a longer training budget")] + pending("P4.2")
+    return [
+        sec("Problem 4.2: From five updates to a longer training budget"),
+        para("<b>Implementation</b> (mup.py: model builder + optimizer builder). muP changes exactly four settings vs the "
+             "course baseline, with n0 = 512, m = n/n0 and the same truncated-Gaussian G: embedding init G/n0 (baseline "
+             "G/n), readout init G/sqrt(n0) (baseline G/sqrt(n)), readout multiplier 1/m (forward behaviour fixed in the "
+             "constructor), hidden-matrix LR eta/m (separate AdamW groups). Depth rules (reference depth 8, r = L/8) scale "
+             "each block's two branches, block-matrix and block-norm LRs and Adam eps as in 4.1. At width 512, depth 8 all "
+             "prescriptions equal the baseline, so the supplied P1a 153.6M runs serve as that point. 48 new runs, "
+             "153.6M tokens, diagnostics on."),
+        sub("(a, b) Transfer to widths 128 and 256, and tuned performance."),
+        para("<b>Prediction:</b> P1's best sampled LR (.003) transfers under muP but not under the baseline, whose optimum "
+             "should rise as width shrinks."),
+        table([["Width", "Baseline LR*", "Baseline min loss", "Baseline at .003", "muP LR*", "muP min loss", "muP at .003"],
+               ["128", "8.3e-3", "3.6215", "3.6931 (+0.07)", "3.0e-3", "3.6307", "3.6307 (+0.00)"],
+               ["256", "4.2e-3", "3.3967", "3.4067 (+0.01)", "2.0e-3", "3.4015", "3.4177 (+0.02)"],
+               ["512", "2.4e-3", "3.2240", "3.2291", "2.4e-3", "3.2240", "3.2291"],
+               ["1024", "1.06e-3", "3.0905", "3.2431 (+0.15)", "2.33e-3", "3.0928", "3.1032 (+0.01)"]],
+              [0.55 * inch, 0.85 * inch, 1.0 * inch, 1.05 * inch, 0.7 * inch, 0.9 * inch, 1.0 * inch]),
+        figure("p42_width_curves.png", width=6.1 * inch,
+               text="Loss vs base LR per width (stars: fitted optima) and fitted optimum vs width; dotted line: LR .003."),
+        figure("p42_width_losses.png", width=3.6 * inch, text="Fitted minimum loss and loss at the transferred LR vs width."),
+        bullets("<b>muP transfers better</b>: its optimum stays within 2-3e-3 over 8x width while the baseline's falls as "
+                "width^-0.90.",
+                "<b>But tuned losses are essentially equal</b> (within 0.01 at every width). Unlike the five-step test, where "
+                "muP won by 0.1-0.7 nats, 2,344 Adam updates let the baseline adapt its badly scaled layers once its LR is "
+                "tuned. Better transfer is not better tuned performance here."),
+        figure("p42_alignment.png", width=6.1 * inch,
+               text="At LR .003: mean update alignment alpha over training, omega_move, and final-norm feature movement."),
+        bullets("<b>Beyond five updates, update alignment rises then decays</b>: alpha ~0.7 at update 1, ~0.9 by update 10, "
+                "then falling steadily to ~0.6 by the end at every width and under both prescriptions. omega_move stays "
+                "at 0.50 throughout.",
+                "<b>Finite-width effects:</b> at update 1 the embedding holds 90-99% of the squared gradient norm and clipping "
+                "scales updates by 0.03-0.26, differently per width (baseline: 0.26 at w128, 0.06 at w512; muP: 0.03 at "
+                "w128). The baseline's embedding scale 1/n is comparable to sqrt(eps) = 0.003, so its first-norm output RMS "
+                "falls from 0.93 (w128) to 0.52 (w512); under muP it is 0.52 at every width. Both effects vanish after "
+                "~1% of training (clip coefficient 1.0)."),
+        sub("(c) Predict a held-out width (1024)."),
+        para("Pre-registered (p42c_preregistered_predictions.md): power laws over widths 128-512 predict "
+             "<b>1.26e-3</b> (baseline, width^-0.90) and <b>1.94e-3</b> (muP, width^-0.16)."),
+        table([["Width 1024", ".00075", ".0015", ".003 (transfer)", ".006", "Prediction", "Local optimum"],
+               ["Baseline", "3.1406", "3.1418", "3.2431 (+0.140)", "3.3249", "1.26e-3: <b>3.1033</b> (best)", "1.06e-3"],
+               ["muP", "3.2397", "3.1245", "3.1032 (+0.005)", "3.2540", "1.94e-3: <b>3.0983</b> (best)", "2.33e-3"]],
+              [0.75 * inch, 0.6 * inch, 0.6 * inch, 1.05 * inch, 0.6 * inch, 1.6 * inch, 0.9 * inch]),
+        bullets("<b>Fitting the width dependence beats direct transfer for both prescriptions</b>: both predictions were the "
+                "best sampled LR. For the baseline it is essential (transfer costs 0.140); for muP it is a small refinement "
+                "(0.005) because its optimum barely moves.",
+                "Tuned losses are again within 0.003 of each other (3.0905 vs 3.0928)."),
+        sub("(d) Transfer across depth (width 512; depths 4, 8, 16)."),
+        table([["Depth", "muP: min / at .003", "Depth-muP: min / at .003", "CompleteP: min / at .003"],
+               ["4", "3.3150 / 3.3175", "3.3238* / 3.3491", "<b>3.3127</b> / 3.3150"],
+               ["8", "3.2240 / 3.2291", "(identical)", "(identical)"],
+               ["16", "3.1723* / 3.1763", "<b>3.1635</b> / 3.1639", "3.1713* / 3.1868"]],
+              [0.6 * inch, 1.8 * inch, 1.9 * inch, 1.9 * inch]),
+        para("* optimum at the lowest sampled LR (.0015)."),
+        figure("p42_depth.png", width=6.1 * inch, text="Loss vs LR at depths 4, 8, 16 and loss vs depth (fitted minimum and "
+                                                         "loss at the transferred LR)."),
+        bullets("Over 4-16 layers the depth corrections matter by only ~0.01. At depth 16, Depth-muP both transfers best "
+                "(optimum ~2.8e-3, cost at .003 = 0.000) and reaches the lowest loss (0.009 below muP). At depth 4 it is "
+                "worst: its r^-1/2 multipliers enlarge the branches and block LR when r < 1. CompleteP transfers at depth 4 "
+                "but its optimum drifts low at 16 (+0.016 at .003).",
+                "A 4x depth range is too small for the sqrt(L) residual growth seen in 4.1 to dominate; standard muP already "
+                "transfers within 0.005. Depth corrections are a large-depth effect."),
+        sub("(e) Identify the training regime."),
+        table([["Config (LR)", "Logit RMS: peak updates 0-5 -> end", "Feature movement: update 5 -> end", "alpha: early -> late",
+                "omega_move"],
+               ["Baseline w128 (.003)", "0.99 -> 4.36", "1.29 -> 2.02", "0.71 -> 0.61", "0.50"],
+               ["Baseline w1024 (.003)", "1.01 -> 4.16", "1.33 -> 1.16", "0.86 -> 0.67", "0.50"],
+               ["Baseline w1024 (best .00126)", "0.99 -> 3.94", "1.33 -> 1.36", "0.84 -> 0.64", "0.50"],
+               ["muP w128 (.003)", "1.97 -> 4.44", "1.37 -> 1.26", "0.77 -> 0.59", "0.50"],
+               ["muP w1024 (.003)", "0.73 -> 4.07", "1.32 -> 1.39", "0.85 -> 0.64", "0.50"],
+               ["CompleteP d16 (best .0015)", "0.99 -> 4.01", "1.32 -> 1.53", "0.82 -> 0.62", "0.50"]],
+              [1.6 * inch, 1.5 * inch, 1.4 * inch, 1.0 * inch, 0.7 * inch]),
+        bullets("<b>Alignment by stage:</b> early updates are strongly aligned (alpha 0.71-0.86, rising with width), "
+                "supporting muP's alpha ~ 1; late in training alpha ~0.6-0.67 at every width and depth, so muP's eta/m is "
+                "conservative then. omega_move = 0.50 at every width, depth and stage: the omega = 1 readout assumption is "
+                "never supported.",
+                "<b>Larger early transients can still give a better final loss:</b> muP at width 128 has twice the early "
+                "logit RMS of the baseline (1.97 vs 0.99) yet ends 0.06 lower at the same LR (3.631 vs 3.693).",
+                "<b>A shift in optimal LR alone does not show the model has left the stable muP regime.</b> muP's optimum "
+                "moves between 2.0e-3 and 3.0e-3 across widths while alpha, omega, feature movement and final logits are "
+                "unchanged; on these flat curves such shifts are within ~0.01 nats and fitting noise.",
+                "<b>Fixed WD:</b> the course AdamW decays by LR x WD per step, so muP's hidden LR eta/m also scales hidden "
+                "decay by 1/m. With WD fixed at .1 the hidden averaging window 1/(LR x WD) grows m-fold at width 1024 and "
+                "shrinks 4x at width 128. Problem 2 showed LR x WD is what matters, so part of muP's residual LR drift is "
+                "likely this coupling; a width-invariant recipe would scale hidden WD by m."),
+        sub("Synthesis (Problem 4)."),
+        para("muP makes the base LR approximately width-invariant both over five updates and over a full run, so a single "
+             "tuned LR transfers from width 128 to 1024 (+0.005) while the baseline needs a fitted width^-0.9 rule. "
+             "After tuning, however, both reach the same loss at these widths. The derivation's assumptions hold only "
+             "partly: updates are strongly aligned with their inputs early (alpha ~0.9) but weakly late (~0.6), and the "
+             "readout never aligns with the feature change (omega = 0.5). Depth corrections are essential at depth 100-1000, "
+             "where standard muP's residual stream explodes, but are a ~0.01 effect at depth 4-16."),
+    ]
 
 
 def P5_SECTION():
-    return []
+    code = ParagraphStyle("code", fontName="Courier", fontSize=8, leading=10)
+    diff = """+def p5():
++    key = "a2-p5-wdrescue"
++    pairs = [(0.006, 0.262), (0.012, 0.131), (0.012, 0.1)]
++    return [config(tokens=153_600_000, learning_rate=lr, weight_decay=wd,
++                   run_name_suffix=key, wandb_tags=(key,)) for lr, wd in pairs]
+# launch: python -m experiments.a2.awd.queue_driver experiments.a2.awd.later_runs:p5"""
+    return [
+        PageBreak(),
+        sec("Problem 5 (optional): Can weight decay rescue a learning rate that is too high?"),
+        para("<b>Question (single answer, Medium).</b> Default d8 recipe, 153.6M tokens, linear decay, seed 42. The supplied "
+             "joint sweep puts the optimum near peak LR 1.9e-3, WD .85 (LR x WD = 1.57e-3, loss ~3.18). With the default "
+             "WD .1, peak LR .006 gives 3.3056. Keep peak LR .006 but raise WD to .262, so that LR x WD matches the "
+             "optimum's product. What final validation loss do you expect? (a) above 3.30 (no rescue); (b) 3.25-3.30 "
+             "(partial); (c) 3.20-3.25 (most of the gap); (d) below 3.20 (full rescue)."),
+        para("<b>Pre-registered prediction</b> (p5_preregistered_prediction.md, before running): <b>(b), ~3.28</b>, because "
+             "the 153.6M quadratic gives 3.284 and the LR-WD valley is steeper than the constant-product line "
+             "(log-slope -2.3): matching the product only partly compensates, since LR also sets per-step noise."),
+        Paragraph(diff.replace("\n", "<br/>").replace(" ", "&nbsp;"), code),
+        Spacer(1, 6),
+        table([["Peak LR", "WD", "LR x WD", "Val loss"],
+               [".006", ".1 (supplied)", "6.0e-4", "3.3056"],
+               [".006", ".262 (product-matched)", "1.57e-3", "<b>3.2870</b>"],
+               [".012", ".1", "1.2e-3", "3.3548"],
+               [".012", ".131 (product-matched)", "1.57e-3", "3.3471"]],
+              [0.9 * inch, 1.7 * inch, 0.9 * inch, 1.0 * inch]),
+        para("<b>Answer: (b), 3.287.</b> Matching the product recovers 0.019 of the 0.13 gap to the joint optimum at 3.2x "
+             "the optimal LR, and only 0.008 at 6.5x. The answer is robust to seed noise (sd ~0.003; 3.287 is 0.013 from "
+             "the nearest boundary). My prediction was right in band and within 0.003 in value; the quadratic "
+             "extrapolation to LR .012 (3.448) was far too pessimistic (measured 3.347), but the small size of the "
+             "rescue held. <b>Lesson:</b> LR and WD trade off only near the optimum; far above it, the LR's per-step "
+             "noise dominates and no WD fixes it."),
+    ]
 
 
 def sec(title):
@@ -246,7 +474,7 @@ story += [
            ["307.2M", "3.0709 / 3.0562 / 3.0715", "2.98e-3", "2.79 - 3.18e-3"],
            ["614.4M", "2.9473 / 2.9256 / 2.9408", "3.19e-3", "3.03 - 3.39e-3"]],
           [0.9 * inch, 2.5 * inch, 1.4 * inch, 1.4 * inch]),
-    figure("p1_loss_vs_lr.png", text="Loss vs LR per budget (parabola fits; star = fitted optimum). P1(b) budgets included."),
+    figure("p1_loss_vs_lr.png", width=4.0 * inch, text="Loss vs LR per budget (parabola fits; star = fitted optimum). P1(b) budgets included."),
     Paragraph("<b>The optimal LR increases with the token budget.</b>", body),
     bullets("Proposed rule: <b>LR* = 3.28e-3 x (D / 614.4M)^0.21</b> (log-log least squares through the three optima).",
             "This is the opposite of convex-optimization intuition, where more steps means a smaller LR (~1/sqrt(T)). "
@@ -261,7 +489,7 @@ story += [
            ["1.8432B", "4.14e-3", "3.28e-3", "<b>3.43e-3</b>", "2.98 - 4.57e-3"],
            ["2.4576B", "4.40e-3", "3.29e-3", "<b>2.91e-3</b>", "2.52 - 3.28e-3"]],
           [0.9 * inch, 1.4 * inch, 1.45 * inch, 1.3 * inch, 1.25 * inch]),
-    figure("p1_optimal_lr_vs_budget.png", width=4.4 * inch,
+    figure("p1_optimal_lr_vs_budget.png", width=3.8 * inch,
            text="Fitted optimal LR vs budget with both pre-registered rules. Left of the dotted line = fit (P1a), right = held out (P1b)."),
     Paragraph("<b>The small-budget trend does not continue.</b>", body),
     bullets("The power law nailed 1.2B (3.80e-3 predicted vs 3.88e-3), then the optimum <b>turned around and fell</b> "
@@ -288,7 +516,6 @@ story += [
             "of training at intermediate LRs and gives a longer annealing phase."),
     sub("Synthesis (Problem 1)."),
     P1_SYNTHESIS(),
-    PageBreak(),
 ]
 
 # ---------------- Problem 2 ----------------
@@ -303,16 +530,16 @@ story += [
            ["614.4M", "0.984", "2.47e-3", "0.26", "6.4e-4", "(.003, .2): 2.9178", "2.9256", "0.008"],
            ["1.2288B", "0.984", "2.70e-3", "0.16", "4.4e-4", "(.003, .2): 2.8361", "2.8378", "0.002"]],
           [0.7 * inch, 0.6 * inch, 0.65 * inch, 0.5 * inch, 0.75 * inch, 1.55 * inch, 0.85 * inch, 0.5 * inch]),
-    figure("p2_contours.png", width=6.8 * inch,
+    figure("p2_contours.png", width=6.1 * inch,
            text="Fitted contours (labels: loss above the fitted minimum), measured points, fitted optimum (star) and the "
                 "line LR x WD = LR* x WD* (dashed)."),
-    figure("p2_optima_vs_tokens.png", width=6.6 * inch,
+    figure("p2_optima_vs_tokens.png", width=5.9 * inch,
            text="Fitted optima vs tokens with power-law fits (grey: P1's LR optimum at fixed WD .1)."),
     bullets("<b>Optimal WD falls cleanly with budget</b> (WD* ~ D^-0.82). <b>Optimal LR does not</b> follow a single power "
             "law (R^2 0.68): it dips at 307M and then rises, and it sits below P1's fixed-WD optimum at every budget "
             "(the model prefers a smaller LR when it can also use more decay).",
             "The LR trend is similar in shape to Problem 1's (rising from 307M to 1.2B) but ~20-40% lower in level."),
-    figure("p2_joint_vs_p1.png", width=5.6 * inch, text="Best measured loss with and without tuning WD, and the difference."),
+    figure("p2_joint_vs_p1.png", width=4.6 * inch, text="Best measured loss with and without tuning WD, and the difference."),
     bullets("<b>The benefit of tuning WD shrinks with budget:</b> 0.045 at 153.6M, 0.028, 0.008, and 0.002 at 1.2B. "
             "The default WD .1 is far too small for short runs and close to right by ~1B tokens."),
     sec("Problem 2b: From coupling to a joint scaling law"),
@@ -327,7 +554,7 @@ story += [
             "averaging over more steps but a smaller fraction of training (a D^-1 law would keep the fraction fixed)."),
 ]
 story += P2C_SECTION()
-story += [sub("Synthesis (Problem 2)."), P2_SYNTHESIS(), PageBreak()]
+story += [sub("Synthesis (Problem 2)."), P2_SYNTHESIS()]
 
 # ---------------- Problem 3.1 ----------------
 story += [
@@ -342,7 +569,7 @@ story += [
            ["RMSProp", "0.90", "0.094", "0.095", "1.20e-2 / 1.21e-2 (x0.99)"],
            ["Adam", "0.89", "0.091", "0.179", "1.49e-2 / 1.35e-2 (x1.11)"]],
           [0.9 * inch, 1.45 * inch, 1.3 * inch, 1.15 * inch, 1.9 * inch]),
-    figure("p31_ab.png", width=6.4 * inch, text="Optimal LR vs batch (dashed: fit on B <= 64; star: prediction at 256), "
+    figure("p31_ab.png", width=5.8 * inch, text="Optimal LR vs batch (dashed: fit on B <= 64; star: prediction at 256), "
                                                 "and best loss after tuning LR."),
     bullets("<b>SGD follows linear scaling (p = 0.99) up to B ~ 128 and breaks at 256-512</b>: the predicted LR runs into "
             "the stability limit 2/h_max = 0.2, so the tuned LR saturates (0.16 at B = 512) and the loss jumps (x4 from "
@@ -364,7 +591,7 @@ story += [
            ["100", "0.99 / 1.01", "0.50 / 0.51", "0.50 / 0.51", "1.01 / 1.01"],
            ["300", "1.01 / 1.04", "0.51 / 0.54", "0.51 / 0.53", "1.01 / 1.02"]],
           [0.55 * inch, 1.3 * inch, 1.45 * inch, 1.3 * inch, 2.1 * inch]),
-    figure("p31_c.png", width=6.0 * inch, text="Fitted exponent vs noise scale for both curvature models."),
+    figure("p31_c.png", width=5.4 * inch, text="Fitted exponent vs noise scale for both curvature models."),
     bullets("<b>The ratio of signal to noise changes the rule for adaptive optimizers but not for SGD.</b> Adam's "
             "step is m/sqrt(v) with v ~ (Hw)^2 + sigma^2/B. When noise dominates v, the step is ~ LR sqrt(B)/sigma "
             "times the gradient, i.e. SGD with effective LR LR sqrt(B)/sigma; SGD wants an effective LR ~ B, so "
@@ -385,7 +612,7 @@ story += [
            ["Adam beta1 = 0.9", "9.15e-4, -7%", "1.35e-2, +11%"],
            ["Adam best beta1", "beta1 = .9: 9.15e-4", "beta1 = .8: 1.91e-3, -84%"]],
           [1.5 * inch, 2.3 * inch, 2.4 * inch]),
-    figure("p31_d.png", width=6.8 * inch, text="Left: best loss vs beta1 / mu relative to no momentum. Right: learning "
+    figure("p31_d.png", width=6.1 * inch, text="Left: best loss vs beta1 / mu relative to no momentum. Right: learning "
                                                 "curves of the best momentum setting vs the no-momentum baseline."),
     bullets("<b>Momentum helps little at small batch and a lot at large batch</b> (Adam: -7% at B = 16 vs -84% at 256; "
             "SGD: -8% vs -51%). At B = 16 the problem is noise-dominated and momentum mostly rescales the LR "
@@ -404,7 +631,6 @@ story += [
          "and signal-to-noise, the extra batch buys nothing, the optimal LR saturates, and only methods that use "
          "curvature better (momentum) still help. Exponents fitted on small batches are only trustworthy while "
          "you stay in the same regime."),
-    PageBreak(),
 ]
 story += P32_SECTION()
 

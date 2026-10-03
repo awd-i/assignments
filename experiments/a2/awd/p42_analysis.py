@@ -222,3 +222,73 @@ if __name__ == "__main__" and len(sys.argv) == 1:
                   f"{fT['logit_rms']:.2f}; alpha(1-5) {np.mean(list(by_type.values())):.2f} late "
                   f"{np.mean(list(late.values())) if late else float('nan'):.2f}; emb-norm rms "
                   f"{f0['features']['model.layers.0.input_layernorm']['rms']:.3f}")
+
+
+def depth_and_regime_plots(R, summary):
+    rules = (("mup", "#888888", "standard muP"), ("depth-mup", "#3a7bd5", "Depth-muP"), ("completep", "#7030A0", "CompleteP"))
+    depths = (4, 8, 16)
+    fig, axes = plt.subplots(1, 4, figsize=(21, 4.4))
+    for ax, d in zip(axes[:3], depths):
+        for rule, col, lab in rules:
+            if (rule, 512, d) not in R:
+                continue
+            pts = sorted(R[(rule, 512, d)].items())
+            ax.plot([p[0] for p in pts], [p[1][0] for p in pts], "o-", color=col, markeredgecolor="black", label=lab)
+        ax.axvline(SOURCE_LR, color="gray", linestyle=":")
+        ax.set_xscale("log")
+        ax.set_title(f"Depth {d} (width 512)")
+        ax.set_xlabel("Peak base LR")
+        ax.grid(True, linestyle=":", alpha=0.3)
+        ax.legend(frameon=False, fontsize=8)
+    axes[0].set_ylabel("Final val loss (153.6M tokens)")
+    ax = axes[3]
+    for rule, col, lab in rules:
+        ds = [d for d in depths if (rule, 512, d) in summary]
+        ax.plot(ds, [summary[(rule, 512, d)]["loss"] for d in ds], "o-", color=col, markeredgecolor="black",
+                label=f"{lab}: fitted min")
+        ax.plot(ds, [summary[(rule, 512, d)]["at_source"] for d in ds], "s--", color=col, alpha=0.6,
+                label=f"{lab}: at LR .003")
+    ax.set_xscale("log", base=2)
+    ax.set_xlabel("Depth")
+    ax.set_ylabel("Val loss")
+    ax.grid(True, linestyle=":", alpha=0.3)
+    ax.legend(frameon=False, fontsize=7)
+    fig.tight_layout()
+    fig.savefig(OUT / "p42_depth.png")
+
+    # (e) regime diagnostics: early (updates 0-5) and end-of-training probes at the transferred and best sampled LR
+    configs = [("sp", w, 8) for w in (128, 256, 512, 1024)] + [("mup", w, 8) for w in (128, 256, 1024)] + \
+              [(r, 512, d) for r, _, _ in rules for d in (4, 16)]
+    rows = []
+    for k in configs:
+        if k not in summary:
+            continue
+        best_lr = summary[k]["best"][0]
+        for tag, lr in (("transfer", SOURCE_LR), ("best", best_lr)):
+            feats, align, grads = diag_for(*k, lr)
+            if not feats:
+                continue
+            by = {f["step"]: f for f in feats}
+            early = [by[s] for s in sorted(by) if s <= 5]
+            last = by[max(by)]
+            om = [f.get("readout_alignment", {}).get("movement", {}).get("omega") for f in early[1:]]
+            om_end = last.get("readout_alignment", {}).get("movement", {}).get("omega")
+            al_early = alpha_by_type(align, steps=set(range(1, 6)))
+            al_late = alpha_by_type(align, steps={a["step"] for a in align if a["step"] > 1000})
+            rows.append(dict(cfg=k, tag=tag, lr=lr, logit_peak5=max(f["logit_rms"] for f in early),
+                             logit_end=last["logit_rms"],
+                             move5=early[-1]["features"]["model.norm"]["movement"],
+                             move_end=last["features"]["model.norm"]["movement"],
+                             omega5=np.nanmean([o for o in om if o is not None]) if any(o is not None for o in om) else None,
+                             omega_end=om_end, alpha5=np.mean(list(al_early.values())) if al_early else None,
+                             alpha_end=np.mean(list(al_late.values())) if al_late else None,
+                             loss=R[k].get(lr, (None,))[0]))
+    json.dump(rows, open(OUT / "p42_regime.json", "w"), indent=1, default=float)
+    for r in rows:
+        print(r["cfg"], r["tag"], f"lr {r['lr']:.3g} loss {r['loss']}", " ".join(
+            f"{k} {r[k]:.3f}" for k in ("logit_peak5", "logit_end", "move5", "move_end", "omega5", "omega_end",
+                                       "alpha5", "alpha_end") if r[k] is not None))
+
+
+if __name__ == "__main__" and len(sys.argv) == 1:
+    depth_and_regime_plots(R, summary)

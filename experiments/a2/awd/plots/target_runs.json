@@ -858,5 +858,969 @@
   "kwargs": {},
   "val_loss": 2.9258105754852295,
   "runtime_min": 10.948479123910268
+ },
+ {
+  "name": "model-a2-d8-lr0.003-bs128-tok614M-a2-a2-p32-B128",
+  "tags": [
+   "a2-p32-B128"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/lqf41smv",
+  "lr": 0.003,
+  "wd": 0.1,
+  "batch": 128,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.949950933456421,
+  "runtime_min": 24.345315237840015
+ },
+ {
+  "name": "model-a2-d8-lr0.00559-bs128-tok614M-a2-a2-p32-B128",
+  "tags": [
+   "a2-p32-B128"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/d10oy0xn",
+  "lr": 0.00559,
+  "wd": 0.1,
+  "batch": 128,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.9607558250427246,
+  "runtime_min": 24.45452357927958
+ },
+ {
+  "name": "model-a2-d8-lr0.0112-bs128-tok614M-a2-a2-p32-B128",
+  "tags": [
+   "a2-p32-B128"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/x9gintsc",
+  "lr": 0.0112,
+  "wd": 0.1,
+  "batch": 128,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 3.001455783843994,
+  "runtime_min": 24.322158734003704
+ },
+ {
+  "name": "model-a2-d8-lr0.003-bs256-tok614M-a2-a2-p32-B256",
+  "tags": [
+   "a2-p32-B256"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/ah4u2hav",
+  "lr": 0.003,
+  "wd": 0.1,
+  "batch": 256,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 3.015371322631836,
+  "runtime_min": 24.294000319639842
+ },
+ {
+  "name": "model-a2-d8-lr0.00828-bs256-tok614M-a2-a2-p32-B256",
+  "tags": [
+   "a2-p32-B256"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/4q9bjxdw",
+  "lr": 0.00828,
+  "wd": 0.1,
+  "batch": 256,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 3.1213247776031494,
+  "runtime_min": 24.325797375043233
+ },
+ {
+  "name": "model-a2-d8-lr0.0166-bs256-tok614M-a2-a2-p32-B256",
+  "tags": [
+   "a2-p32-B256"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/mit4zoqt",
+  "lr": 0.0166,
+  "wd": 0.1,
+  "batch": 256,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 3.140544891357422,
+  "runtime_min": 24.268927296002705
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs128-tok614M-wd0.473-a2-a2-p32-B128",
+  "tags": [
+   "a2-p32-B128"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/epxjmv4n",
+  "lr": 0.0015,
+  "wd": 0.473,
+  "batch": 128,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.9446420669555664,
+  "runtime_min": 24.363033246994018
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs128-tok614M-wd0.946-a2-a2-p32-B128",
+  "tags": [
+   "a2-p32-B128"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/2i1pxp3h",
+  "lr": 0.0015,
+  "wd": 0.946,
+  "batch": 128,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.9332032203674316,
+  "runtime_min": 24.407247614860534
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs128-tok614M-wd1.89-a2-a2-p32-B128",
+  "tags": [
+   "a2-p32-B128"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/nk542589",
+  "lr": 0.0015,
+  "wd": 1.89,
+  "batch": 128,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.9430291652679443,
+  "runtime_min": 21.02560788790385
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs256-tok614M-wd0.93-a2-a2-p32-B256",
+  "tags": [
+   "a2-p32-B256"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/y3j5u46c",
+  "lr": 0.0015,
+  "wd": 0.93,
+  "batch": 256,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.985361814498902,
+  "runtime_min": 24.30577793518702
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs256-tok614M-wd1.86-a2-a2-p32-B256",
+  "tags": [
+   "a2-p32-B256"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/ob00ttrf",
+  "lr": 0.0015,
+  "wd": 1.86,
+  "batch": 256,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.9680047035217285,
+  "runtime_min": 24.16676456928253
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs256-tok614M-wd3.72-a2-a2-p32-B256",
+  "tags": [
+   "a2-p32-B256"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/j2sy5g4q",
+  "lr": 0.0015,
+  "wd": 3.72,
+  "batch": 256,
+  "beta1": 0.9,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.9885690212249756,
+  "runtime_min": 24.252510110537216
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs8-tok614M-wd0.05-b10.0-a2-a2-p32c-B8",
+  "tags": [
+   "a2-p32c-B8"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/g6g3sn1q",
+  "lr": 0.0015,
+  "wd": 0.05,
+  "batch": 8,
+  "beta1": 0,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.977182626724243,
+  "runtime_min": 16.500947618484496
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs8-tok614M-wd0.05-b10.5-a2-a2-p32c-B8",
+  "tags": [
+   "a2-p32c-B8"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/ufvupabi",
+  "lr": 0.0015,
+  "wd": 0.05,
+  "batch": 8,
+  "beta1": 0.5,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.960527181625366,
+  "runtime_min": 15.723787506421408
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs8-tok614M-wd0.05-b10.8-a2-a2-p32c-B8",
+  "tags": [
+   "a2-p32c-B8"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/8kwd2xbo",
+  "lr": 0.0015,
+  "wd": 0.05,
+  "batch": 8,
+  "beta1": 0.8,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.9464147090911865,
+  "runtime_min": 15.67909192641576
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs8-tok614M-wd0.05-b10.95-a2-a2-p32c-B8",
+  "tags": [
+   "a2-p32c-B8"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/841leize",
+  "lr": 0.0015,
+  "wd": 0.05,
+  "batch": 8,
+  "beta1": 0.95,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.9314322471618652,
+  "runtime_min": 15.909907766183217
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs8-tok614M-wd0.05-b10.98-a2-a2-p32c-B8",
+  "tags": [
+   "a2-p32c-B8"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/m6j3bhn6",
+  "lr": 0.0015,
+  "wd": 0.05,
+  "batch": 8,
+  "beta1": 0.98,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.933920383453369,
+  "runtime_min": 16.56963010629018
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs256-tok614M-wd1.86-b10.0-a2-a2-p32c-B256",
+  "tags": [
+   "a2-p32c-B256"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/ye7ciimr",
+  "lr": 0.0015,
+  "wd": 1.86,
+  "batch": 256,
+  "beta1": 0,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 3.2164807319641113,
+  "runtime_min": 24.21940973599752
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs256-tok614M-wd1.86-b10.5-a2-a2-p32c-B256",
+  "tags": [
+   "a2-p32c-B256"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/jnh934tx",
+  "lr": 0.0015,
+  "wd": 1.86,
+  "batch": 256,
+  "beta1": 0.5,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 3.069601535797119,
+  "runtime_min": 24.17517437537511
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs256-tok614M-wd1.86-b10.8-a2-a2-p32c-B256",
+  "tags": [
+   "a2-p32c-B256"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/7kjrdxik",
+  "lr": 0.0015,
+  "wd": 1.86,
+  "batch": 256,
+  "beta1": 0.8,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.9877960681915283,
+  "runtime_min": 24.258630685011546
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs256-tok614M-wd1.86-b10.95-a2-a2-p32c-B256",
+  "tags": [
+   "a2-p32c-B256"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/j8gg2nc7",
+  "lr": 0.0015,
+  "wd": 1.86,
+  "batch": 256,
+  "beta1": 0.95,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.96720027923584,
+  "runtime_min": 24.18409238656362
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-bs256-tok614M-wd1.86-b10.98-a2-a2-p32c-B256",
+  "tags": [
+   "a2-p32c-B256"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/rjab9pv7",
+  "lr": 0.0015,
+  "wd": 1.86,
+  "batch": 256,
+  "beta1": 0.98,
+  "tokens": 614400000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 3.020012855529785,
+  "runtime_min": 24.301263968149822
+ },
+ {
+  "name": "model-a2-w1024-d8-sp-lr0.006-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w1024-d8-sp"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/ksr1vjps",
+  "lr": 0.006,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w1024-d8-sp",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "baseline"
+  },
+  "val_loss": 3.3248908519744873,
+  "runtime_min": 10.66462930838267
+ },
+ {
+  "name": "model-a2-w1024-d8-sp-lr0.00126-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w1024-d8-sp"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/c30nf575",
+  "lr": 0.00126,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w1024-d8-sp",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "baseline"
+  },
+  "val_loss": 3.103320837020874,
+  "runtime_min": 10.102433268229166
+ },
+ {
+  "name": "model-a2-w1024-d8-mup-lr0.00075-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w1024-d8-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/hjnfiyw9",
+  "lr": 0.00075,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w1024-d8-mup",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "mup"
+  },
+  "val_loss": 3.2397193908691406,
+  "runtime_min": 10.699351596832276
+ },
+ {
+  "name": "model-a2-w1024-d8-mup-lr0.0015-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w1024-d8-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/6ka0cgas",
+  "lr": 0.0015,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w1024-d8-mup",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "mup"
+  },
+  "val_loss": 3.124450445175171,
+  "runtime_min": 9.888973100980122
+ },
+ {
+  "name": "model-a2-w1024-d8-mup-lr0.003-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w1024-d8-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/n4uawto4",
+  "lr": 0.003,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w1024-d8-mup",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "mup"
+  },
+  "val_loss": 3.103175163269043,
+  "runtime_min": 9.54519468943278
+ },
+ {
+  "name": "model-a2-w1024-d8-mup-lr0.006-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w1024-d8-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/th9pvt09",
+  "lr": 0.006,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w1024-d8-mup",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "mup"
+  },
+  "val_loss": 3.253974199295044,
+  "runtime_min": 10.653823896249135
+ },
+ {
+  "name": "model-a2-w1024-d8-mup-lr0.00194-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w1024-d8-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/ebxloj1h",
+  "lr": 0.00194,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w1024-d8-mup",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "mup"
+  },
+  "val_loss": 3.098317861557007,
+  "runtime_min": 9.674374147256215
+ },
+ {
+  "name": "model-a2-w512-d4-mup-lr0.003-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d4-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/7kiy355b",
+  "lr": 0.003,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d4-mup",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "mup"
+  },
+  "val_loss": 3.3175270557403564,
+  "runtime_min": 2.835375348726908
+ },
+ {
+  "name": "model-a2-w512-d4-mup-lr0.0015-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d4-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/3csjbrh6",
+  "lr": 0.0015,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d4-mup",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "mup"
+  },
+  "val_loss": 3.3320369720458984,
+  "runtime_min": 2.907477935155233
+ },
+ {
+  "name": "model-a2-w512-d4-mup-lr0.006-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d4-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/4wpvoo2n",
+  "lr": 0.006,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d4-mup",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "mup"
+  },
+  "val_loss": 3.3685495853424072,
+  "runtime_min": 2.8467387596766156
+ },
+ {
+  "name": "model-a2-w512-d4-depth-mup-lr0.0015-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d4-depth-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/yw0bcojc",
+  "lr": 0.0015,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d4-depth-mup",
+  "kwargs": {
+   "depth_rule": "depth-mup",
+   "prescription": "mup"
+  },
+  "val_loss": 3.3237555027008057,
+  "runtime_min": 2.9351235826810202
+ },
+ {
+  "name": "model-a2-w512-d4-depth-mup-lr0.003-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d4-depth-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/2deliejl",
+  "lr": 0.003,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d4-depth-mup",
+  "kwargs": {
+   "depth_rule": "depth-mup",
+   "prescription": "mup"
+  },
+  "val_loss": 3.3491151332855225,
+  "runtime_min": 3.3411664168039956
+ },
+ {
+  "name": "model-a2-w512-d4-depth-mup-lr0.006-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d4-depth-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/z7gvku3s",
+  "lr": 0.006,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d4-depth-mup",
+  "kwargs": {
+   "depth_rule": "depth-mup",
+   "prescription": "mup"
+  },
+  "val_loss": 3.4106359481811523,
+  "runtime_min": 3.322903378804525
+ },
+ {
+  "name": "model-a2-w512-d4-completep-lr0.0015-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d4-completep"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/96ot7xxd",
+  "lr": 0.0015,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d4-completep",
+  "kwargs": {
+   "depth_rule": "completep",
+   "prescription": "mup"
+  },
+  "val_loss": 3.331286668777466,
+  "runtime_min": 3.2430118083953854
+ },
+ {
+  "name": "model-a2-w512-d4-completep-lr0.003-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d4-completep"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/h11hcbsx",
+  "lr": 0.003,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d4-completep",
+  "kwargs": {
+   "depth_rule": "completep",
+   "prescription": "mup"
+  },
+  "val_loss": 3.314990997314453,
+  "runtime_min": 2.897816812992096
+ },
+ {
+  "name": "model-a2-w512-d4-completep-lr0.006-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d4-completep"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/l7338xhy",
+  "lr": 0.006,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d4-completep",
+  "kwargs": {
+   "depth_rule": "completep",
+   "prescription": "mup"
+  },
+  "val_loss": 3.3669984340667725,
+  "runtime_min": 2.9149248639742535
+ },
+ {
+  "name": "model-a2-w512-d16-mup-lr0.0015-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d16-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/r9tqv0zw",
+  "lr": 0.0015,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d16-mup",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "mup"
+  },
+  "val_loss": 3.1722705364227295,
+  "runtime_min": 8.999397492408752
+ },
+ {
+  "name": "model-a2-w512-d16-mup-lr0.003-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d16-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/44dvw4mi",
+  "lr": 0.003,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d16-mup",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "mup"
+  },
+  "val_loss": 3.176349639892578,
+  "runtime_min": 9.680131502946217
+ },
+ {
+  "name": "model-a2-w512-d16-mup-lr0.006-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d16-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/348h8akf",
+  "lr": 0.006,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d16-mup",
+  "kwargs": {
+   "depth_rule": null,
+   "prescription": "mup"
+  },
+  "val_loss": 3.2395522594451904,
+  "runtime_min": 11.07620129585266
+ },
+ {
+  "name": "model-a2-w512-d16-depth-mup-lr0.0015-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d16-depth-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/xti9iaad",
+  "lr": 0.0015,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d16-depth-mup",
+  "kwargs": {
+   "depth_rule": "depth-mup",
+   "prescription": "mup"
+  },
+  "val_loss": 3.2010936737060547,
+  "runtime_min": 10.971560875574747
+ },
+ {
+  "name": "model-a2-w512-d16-depth-mup-lr0.003-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d16-depth-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/9qs0qf2b",
+  "lr": 0.003,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d16-depth-mup",
+  "kwargs": {
+   "depth_rule": "depth-mup",
+   "prescription": "mup"
+  },
+  "val_loss": 3.1639156341552734,
+  "runtime_min": 8.8362832625707
+ },
+ {
+  "name": "model-a2-w512-d16-depth-mup-lr0.006-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d16-depth-mup"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/wjgpnyze",
+  "lr": 0.006,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d16-depth-mup",
+  "kwargs": {
+   "depth_rule": "depth-mup",
+   "prescription": "mup"
+  },
+  "val_loss": 3.2196266651153564,
+  "runtime_min": 9.132278211911519
+ },
+ {
+  "name": "model-a2-w512-d16-completep-lr0.0015-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d16-completep"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/2qz7srh7",
+  "lr": 0.0015,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d16-completep",
+  "kwargs": {
+   "depth_rule": "completep",
+   "prescription": "mup"
+  },
+  "val_loss": 3.171297311782837,
+  "runtime_min": 9.637327166398366
+ },
+ {
+  "name": "model-a2-w512-d16-completep-lr0.003-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d16-completep"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/t5k1pmvj",
+  "lr": 0.003,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d16-completep",
+  "kwargs": {
+   "depth_rule": "completep",
+   "prescription": "mup"
+  },
+  "val_loss": 3.1868176460266113,
+  "runtime_min": 9.03701682885488
+ },
+ {
+  "name": "model-a2-w512-d16-completep-lr0.006-tok154M-a2-a2-p42",
+  "tags": [
+   "a2-p42",
+   "a2-w512-d16-completep"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/ealn6kp2",
+  "lr": 0.006,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-w512-d16-completep",
+  "kwargs": {
+   "depth_rule": "completep",
+   "prescription": "mup"
+  },
+  "val_loss": 3.259943723678589,
+  "runtime_min": 9.921301527818043
+ },
+ {
+  "name": "model-a2-d8-lr0.003-tok2.46B-wd0.0927-a2-a2-p2c-D2458m",
+  "tags": [
+   "a2-p2c-D2458m"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/kyd4scpr",
+  "lr": 0.003,
+  "wd": 0.0927,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 2457600000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.7692642211914062,
+  "runtime_min": 37.92745495239894
+ },
+ {
+  "name": "model-a2-d8-lr0.0015-tok2.46B-wd1.6-a2-a2-p2c-D2458m",
+  "tags": [
+   "a2-p2c-D2458m"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/c92jadk3",
+  "lr": 0.0015,
+  "wd": 1.6,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 2457600000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.85264253616333,
+  "runtime_min": 37.74955757459005
+ },
+ {
+  "name": "model-a2-d8-lr0.003-tok2.46B-wd0.05-a2-a2-p2c-D2458m",
+  "tags": [
+   "a2-p2c-D2458m"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/100guqjh",
+  "lr": 0.003,
+  "wd": 0.05,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 2457600000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.7723276615142822,
+  "runtime_min": 38.37950075864792
+ },
+ {
+  "name": "model-a2-d8-lr0.003-tok2.46B-wd0.2-a2-a2-p2c-D2458m",
+  "tags": [
+   "a2-p2c-D2458m"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/vhef2dop",
+  "lr": 0.003,
+  "wd": 0.2,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 2457600000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 2.7729012966156006,
+  "runtime_min": 37.62279922962189
+ },
+ {
+  "name": "model-a2-d8-lr0.006-tok154M-wd0.262-a2-a2-p5-wdrescue",
+  "tags": [
+   "a2-p5-wdrescue"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/2ec5ckpz",
+  "lr": 0.006,
+  "wd": 0.262,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 3.2869551181793213,
+  "runtime_min": 5.164621873696645
+ },
+ {
+  "name": "model-a2-d8-lr0.012-tok154M-wd0.131-a2-a2-p5-wdrescue",
+  "tags": [
+   "a2-p5-wdrescue"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/5y3p8cfa",
+  "lr": 0.012,
+  "wd": 0.131,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 3.347099781036377,
+  "runtime_min": 5.069224655628204
+ },
+ {
+  "name": "model-a2-d8-lr0.012-tok154M-a2-a2-p5-wdrescue",
+  "tags": [
+   "a2-p5-wdrescue"
+  ],
+  "url": "https://wandb.ai/whitedeer-stanford-university/assignments/runs/vyoqdwed",
+  "lr": 0.012,
+  "wd": 0.1,
+  "batch": 64,
+  "beta1": 0.9,
+  "tokens": 153600000,
+  "model": "a2-d8",
+  "kwargs": {},
+  "val_loss": 3.3547749519348145,
+  "runtime_min": 4.714224441846212
  }
 ]

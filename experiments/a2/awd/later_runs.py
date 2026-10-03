@@ -97,3 +97,9 @@ def p32c_b8():
     """Momentum ablation at B=8 with its best measured pair (LR .0015, WD .05; loss 2.9358), beta2 .95."""
     return [_cfg("a2-p32c-B8", tokens=D_P32, batch=8, learning_rate=0.0015, weight_decay=0.05, beta1=b1)
             for b1 in P32C_BETA1]
+
+
+def p32c_b256():
+    """Momentum ablation at B=256 with its best measured pair (LR .0015, WD 1.86; loss 2.968), beta2 .95."""
+    return [_cfg("a2-p32c-B256", tokens=D_P32, batch=256, learning_rate=0.0015, weight_decay=1.86, beta1=b1)
+            for b1 in P32C_BETA1]
