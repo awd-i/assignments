@@ -255,10 +255,10 @@ class AlgorithmTests(unittest.TestCase):
                              data_seed=None, model_dir=str(root/'models'), wandb_online=True)
                 wandb = Mock()
                 wandb.init.return_value = SimpleNamespace(id='test', url='test')
-                wandb.util.generate_id.return_value = 'test'
                 with patch.dict(sys.modules, {'wandb': wandb}), patch('torch.cuda.device_count', return_value=0):
                     model = train(cfg)
                 run = root/'models'/training_run_name(cfg)
+                self.assertRegex(wandb.init.call_args.kwargs['id'], r'^[0-9a-f]{8}$')
                 for phase in ('initial', 'early', 'final'):
                     self.assertIn('depth', json.loads((run/'diagnostics'/f'{phase}.json').read_text())['last'])
                 steps = [json.loads((run/'diagnostics'/f'{phase}.json').read_text())['optimizer_step']

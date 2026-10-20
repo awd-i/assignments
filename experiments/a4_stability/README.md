@@ -17,7 +17,7 @@ update equation. Read its parent for the shared algorithm.
 
 The course reference sweep is **41 variants × 5 learning rates = 205 runs**.
 It is being prepared in the public
-[course W&B project](https://wandb.ai/hashimoto-group/public-alchemy/overview),
+[course W&B project](https://wandb.ai/hashimoto-group/public-alchemy-a4/overview),
 tagged `a4-reference` and `a4-release-v1`. The five rates are
 `(.25, .5, 1, 2, 4) × center`; [sweeps.py](sweeps.py) specifies the centers.
 Baseline aliases across problems reuse the same runs.

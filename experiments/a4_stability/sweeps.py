@@ -10,7 +10,7 @@ from . import p3_attention_residuals as p3, p4_recurrent_updates as p4
 from .common import training_config
 
 LR_FACTORS = (.25, .5, 1., 2., 4.)
-PUBLIC_PROJECT = 'hashimoto-group/public-alchemy'
+PUBLIC_PROJECT = 'hashimoto-group/public-alchemy-a4'
 SHARED_ROOT = '/root/shared_data/a4_stability'
 
 
