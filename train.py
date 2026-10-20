@@ -829,9 +829,9 @@ def train(config):
                     ),
                 )
 
-                if config.grad_norm is not None:
+                if config.grad_norm is not None or config.fail_on_nonfinite:
                     torch.nn.utils.clip_grad_norm_(
-                        base_model.parameters(), max_norm=config.grad_norm,
+                        base_model.parameters(), max_norm=config.grad_norm if config.grad_norm is not None else float('inf'),
                         error_if_nonfinite=config.fail_on_nonfinite,
                     )
 

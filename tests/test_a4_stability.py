@@ -224,6 +224,22 @@ class AlgorithmTests(unittest.TestCase):
                 torch.testing.assert_close(actual, expected)
                 self.assertTrue(model.training)
 
+    def test_shared_checkpoint_measurement_example_locally(self):
+        from experiments.a4_stability.measure_default import measure
+        with tempfile.TemporaryDirectory() as folder:
+            cfg = sweeps.config('d8', model_config=replace(TINY, context_length=512, num_hidden_layers=1))
+            with redirect_stdout(io.StringIO()):
+                model = build_model(cfg, 'cpu')
+            save_model(model, Path(folder)/cfg.run_name, metadata=dict(model_builder=cfg.model_builder))
+            validation = {'input_ids': (np.arange(512)[None] % 32).astype('uint16')}
+            class Rows:
+                def __getitem__(self, key):
+                    return validation
+            with patch('data.load_token_dataset', return_value=Rows()):
+                measured = measure(cfg.run_name, folder, 'cpu')
+            self.assertEqual(len(measured['context_loss_increase']), 6)
+            self.assertIn('depth', measured['last'])
+
     def test_native_training_writes_snapshots_and_custom_checkpoint(self):
         for cls in (p3.Block2Transformer, p4.GRU):
             with self.subTest(model=cls.__name__), tempfile.TemporaryDirectory() as folder:

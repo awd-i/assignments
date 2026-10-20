@@ -17,7 +17,7 @@ OUTPUT = Path('results/a4_stability') / f'{RUN}.json'
 def measure(run=RUN, root=REFERENCE_ROOT, device='cuda'):
     from data import dclm_val_dataset, load_token_dataset
     from model_io import load_model
-    from .diagnostics import profile, context_loss
+    from experiments.a4_stability.diagnostics import profile, context_loss
     model = load_model(Path(root)/run, device=device, precision='fp32')
     validation = load_token_dataset(dclm_val_dataset(), role='val', data_seed=42)
     tokens = torch.tensor(validation[:1]['input_ids'].astype('int64'), device=device)
