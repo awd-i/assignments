@@ -62,7 +62,7 @@ def recurrence(sequence, x):
 def run_stack(stack, inputs):
     """Capture the complete GRU stack, including its depth norms and MLPs."""
     if (inputs.is_cuda and stack.training and torch.is_grad_enabled()
-            and not log_module_rms.capture and not hasattr(stack, '_captured')):
+            and not hasattr(stack, '_captured')):
         _capture(stack, inputs)
     return stack(inputs)
 
@@ -74,13 +74,15 @@ def _capture(stack, inputs):
     with torch.autocast('cuda', enabled=enabled, dtype=dtype, cache_enabled=False):
         sample = inputs.detach().requires_grad_(True)
         torch.cuda.synchronize()
-        # PyTorch requires no root hooks while capturing. RMS is idle here;
-        # restore its hook before returning, including if capture fails.
+        # Capture before the first backward. Warmups must not enter RMS samples;
+        # PyTorch also requires the root hook to be absent during capture.
+        sampling, log_module_rms.capture = log_module_rms.capture, False
         hooks, stack._forward_hooks = stack._forward_hooks, {}
         try:
             torch.cuda.make_graphed_callables(stack, (sample,), num_warmup_iters=3, allow_unused_input=True)
         finally:
             stack._forward_hooks = hooks
+            log_module_rms.capture = sampling
         replay = stack.forward
         torch.cuda.synchronize()
     # Captured backward buffers must not become accumulated parameter gradients.
