@@ -1,6 +1,6 @@
 """Problem 4: edit the temporal update, keeping the modern RNN's depth stack.
 
-    uv run python -m experiments.a4_stability.p4_recurrent_updates --model gru --lr .003
+    uv run python -m experiments.a4_stability.p4_recurrent_updates
 
 z is the fraction of NEW information, following the handout. Reset is applied
 BEFORE the candidate's recurrent projection; torch.nn.GRU uses a different form.
@@ -118,5 +118,5 @@ MODELS = dict(gru=GRU, tanh=ModernRNN, no_reset=NoResetGRU, no_update=NoUpdateGR
 
 
 if __name__ == "__main__":
-    from .common import run
-    run(4, MODELS)
+    from .sweeps import launch_one
+    launch_one('gru')  # Edit the variant and LR here.

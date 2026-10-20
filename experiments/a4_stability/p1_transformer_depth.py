@@ -1,6 +1,6 @@
 """Problem 1: each subclass changes one component of the class transformer.
 
-    uv run python -m experiments.a4_stability.p1_transformer_depth --model no_residual --lr .001
+    uv run python -m experiments.a4_stability.p1_transformer_depth
 """
 import torch
 from torch import nn
@@ -210,5 +210,5 @@ MODELS = dict(baseline=Transformer, no_residual=NoResidualTransformer,
 
 
 if __name__ == "__main__":
-    from .common import run
-    run(1, MODELS)
+    from .sweeps import launch_one
+    launch_one('d8')  # Edit the variant and LR, e.g. ('d8-no-residual', .001).

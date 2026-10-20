@@ -1,95 +1,94 @@
 # Assignment 4: depth and time
 
-Start with the repository [setup guide](../../README.md). Run commands from the
-repository root. These files use the existing trainer, data, W&B configuration,
-and Modal launcher.
+Start with the repository [setup guide](../../README.md). Commands run from the
+repository root and use your usual data, W&B settings, and Modal environment.
 
-| Problem | Read and edit |
+| Problem | Model definitions |
 |---|---|
-| 1: transformer depth | [p1_transformer_depth.py](p1_transformer_depth.py): baseline and one-component subclasses. |
-| 2: RNN depth | [p2_rnn_depth.py](p2_rnn_depth.py): plain 1/4-layer RNNs, modern RNN, and depth ablations. |
-| 3: residual mixing | [p3_attention_residuals.py](p3_attention_residuals.py): fixed EMAs, uniform mixing, full and blocked attention residuals for both models. |
-| 4: recurrent updates | [p4_recurrent_updates.py](p4_recurrent_updates.py): GRU equations and component ablations. |
+| 1: transformer depth | [p1_transformer_depth.py](p1_transformer_depth.py) |
+| 2: RNN depth | [p2_rnn_depth.py](p2_rnn_depth.py) |
+| 3: residual mixing | [p3_attention_residuals.py](p3_attention_residuals.py) |
+| 4: recurrent updates | [p4_recurrent_updates.py](p4_recurrent_updates.py) |
 
-Each architecture is a class. An ablation overrides a component, a formula, or
-a class attribute selecting that component. The `MODELS` dictionary at the
-bottom of each problem file supplies command-line names.
+Each architecture is a short class that overrides the relevant component or
+update equation. Read its parent for the shared algorithm.
 
-Problems 1 and 2 will have reference W&B runs and Modal checkpoints linked with
-the handout. Use the references for the assigned comparisons; train additional
-models when needed for your investigations. There is no automatic sweep here.
+## Supplied training runs
 
-## Run one experiment
+The course reference sweep is **41 variants × 5 learning rates = 205 runs**.
+It is being prepared in the public
+[course W&B project](https://wandb.ai/hashimoto-group/public-alchemy/overview),
+tagged `a4-reference` and `a4-release-v1`. The five rates are
+`(.25, .5, 1, 2, 4) × center`; [sweeps.py](sweeps.py) specifies the centers.
+Baseline aliases across problems reuse the same runs.
 
-Inspect a config without launching anything:
+Once the release is published, you can use these runs for all supplied
+architecture comparisons in Problems 1–4. You do not need to repeat those LR
+sweeps. Analyze the results and checkpoints, measure diagnostics, and train
+your own proposals for Problems 3 and 4. Add runs if your investigation needs
+another setting or an LR extension.
+
+Checkpoints will be in `cs312-shared-data`, volume `hard-dl-dclm-v1`, mounted
+read-only at `/root/shared_data/a4_stability`. Its `manifest.json` will list
+all outcomes, public run links, model definitions, and available checkpoints.
+Finite completed runs have final weights and an `early/` checkpoint from
+step 100. A divergent run has an outcome and W&B link, without final weights.
+The manifest is published after the entire grid finishes and is checked.
+
+Names are identical in W&B, on Modal, and locally, for example:
+`a4-rnn-no-residual-lr0.001`.
+
+## Measure an existing checkpoint
+
+[measure_default.py](measure_default.py) is a complete example: load the
+released default d8, take a held-out input, compute depth/attention gradients
+and paired context-removal losses, and save the returned JSON locally.
+After the checkpoint release:
 
 ```bash
-uv run python -m experiments.a4_stability.p1_transformer_depth --model no_residual --lr .001 --dry-run
+uv run python -m experiments.a4_stability.measure_default
 ```
 
-Remove `--dry-run` to launch that one model on Modal. Add `--local` to train
-on your local GPU. `--help` lists the choices in each problem. The problem files
-use the same interface; for example:
+Edit its `RUN` constant to inspect another supplied model. For local copies,
+call `measure(run, root, device)` directly. The reusable measurement functions
+are `diagnostics.profile(model, tokens)` and `diagnostics.context_loss(...)`.
+They use FP32 probes and retain true recurrent-state nodes before stacking.
+GRU `z` writes new information; reset precedes the recurrent candidate map.
 
-```bash
-uv run python -m experiments.a4_stability.p2_rnn_depth --model modern --lr .001
-uv run python -m experiments.a4_stability.p3_attention_residuals --model transformer_block2 --lr .001
-uv run python -m experiments.a4_stability.p4_recurrent_updates --model gru --lr .003
-```
+## Run a new experiment
 
-The recipe is width 512, vocabulary 4096, context 1024, batch 64, 600,000
-sequences, AdamW, cosine decay, 1% warmup, and clipping at 1. Plain RNNs use
-weight decay 0; modern models use .1. Tune the learning rate as the handout
-asks. Baseline aliases across problems share a run name so completed baselines
-can be reused.
-
-For other settings, call `common.training_config(ModelClass, lr, problem=...)`
-and override the usual `TrainConfig` fields. New experiments should use a new
-class name so they do not resume a different algorithm's checkpoint.
-
-## Measure propagation
-
-The default logger uses the same held-out input at initialization, the first
-evaluation, and the end of training. It saves `initial.json`, `early.json`, and
-`final.json` in `<run directory>/diagnostics/` and logs depth scalars to W&B.
-Each snapshot records its optimizer step. The JSON files include both
-full-sequence and final-token objectives, depth
-RMS/gradients/cosines, raw branch/input ratios, true recurrent-state gradients,
-state magnitudes, attention versus causal-uniform controls, and depth routing.
-See [diagnostics.py](diagnostics.py) for the measurement conventions.
-
-Automatic snapshots require `wandb_online=True`, like other custom loggers.
-Use `WANDB_MODE=offline` for offline logging, or call `profile` directly.
-
-You can also inspect a checkpoint directly:
+Edit the single call at the bottom of a problem file, then run that module:
 
 ```python
-from model_io import load_model
-from experiments.a4_stability.diagnostics import profile, context_loss
-
-model = load_model(checkpoint_path, device="cuda", precision="fp32")
-stats = profile(model, tokens)  # tokens: a held-out [batch, sequence] tensor
-full = context_loss(model, tokens, keep=tokens.shape[1] - 1)
-short = context_loss(model, tokens, keep=64, preserve_first=True)
-delta = short - full  # paired losses; also try preserve_first=False
+from experiments.a4_stability.sweeps import launch_one, launch
+launch_one('rnn', .001)                    # One run on Modal.
+launch(('rnn',))                          # Its five-rate sweep on Modal.
+launch(('rnn',), dry_run=True)            # Print names/configs only.
+launch_one('rnn', .001, local=True)        # The same run on a local GPU.
 ```
 
-Training uses mixed precision with FP32 weights (`precision="mp"`); the fixed
-probes use FP32. Depth is counted in recurrent/attention and MLP sublayers.
-The RNN output gate changes only the depth stream; its ungated state is carried
-across time. The GRU's `z` is the fraction of **new** information, and reset
-is applied **before** the recurrent candidate projection, as in the handout.
+The module entrypoints have editable Python calls, without argument parsers.
+`sweeps.VARIANTS` maps each short name to its model class, problem, and LR
+center. Students' new runs use their own configured W&B project. Staff pass
+public-project settings to these same configs.
 
-To explore, subclass a depth scheme or a cell and add your model to that
-problem's `MODELS`. Problem 4 carries only `h`: no second state or history cache.
+For a new architecture, subclass a component in the relevant problem file,
+then add your model to `sweeps.VARIANTS`. For example, select a new `cell_type`
+on a `ModernRNN` subclass. Carry only `h` across time for Problem 4.
+Use a new variant/run name when changing the architecture, seed, or recipe.
 
-The small [_runtime.py](_runtime.py) backend keeps cuDNN tanh RNNs, compiled
-16-token editable updates, and CUDA replay for the GRU stack. Chunk boundaries
-do not detach states. Probes use the same cell equations with explicit states.
+The recipe is width 512, vocabulary 4096, context 1024, batch 64, 600,000
+sequences, AdamW, cosine decay, 1% warmup, clipping at 1, and seed 42.
+Weight decay is 0 for plain RNNs and .1 for modern models.
+Training diagnostics are disabled by default. For your own runs, use
+`training_config(Model, lr, problem=..., diagnostics=True)` to save initial,
+early, and final profiles; automatic hooks require `wandb_online=True`.
 
-## Checks
+The small [_runtime.py](_runtime.py) backend supplies cuDNN tanh recurrence,
+compiled 16-token editable updates, and CUDA replay. States stay connected
+across chunks. The problem files contain the algorithm equations.
 
-Synthetic CPU checks need no data download, Modal jobs, or W&B connection:
+Synthetic CPU checks require no dataset download or cloud connection:
 
 ```bash
 uv run python -m unittest discover -s tests -p 'test_a4_*.py' -v

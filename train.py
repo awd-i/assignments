@@ -1,4 +1,5 @@
 import hashlib
+import re
 import time
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
@@ -60,6 +61,8 @@ class TrainConfig:
     model_builder_kwargs: dict = field(default_factory=dict)
     embedding_init_scale: float = 1.0
     run_name_suffix: str | None = None
+    # Optional explicit name, shared by W&B and the checkpoint directory.
+    run_name: str | None = None
     init_checkpoint_path: str | Path | None = None
     learning_rate: float = 3e-3
     num_epochs: float = 1.0
@@ -69,6 +72,7 @@ class TrainConfig:
     warmup_percent: float = 0.01
     weight_decay: float = 0.1
     grad_norm: float | None = 1.0
+    fail_on_nonfinite: bool = False
     dropout: float = 0.0
     qk_norm: bool = True
     tie_word_embeddings: bool = False
@@ -154,6 +158,10 @@ def configured_train_tokens(config):
 
 
 def training_run_name(config):
+    if config.run_name is not None:
+        if not isinstance(config.run_name, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", config.run_name):
+            raise ValueError("run_name must be a nonempty filename using letters, numbers, '.', '_' or '-'.")
+        return config.run_name
     num_epochs = float(config.num_epochs)
     train_tokens = configured_train_tokens(config)
     run_name = f"model-{training_model_name(config)}-lr{config.learning_rate}"
@@ -823,7 +831,8 @@ def train(config):
 
                 if config.grad_norm is not None:
                     torch.nn.utils.clip_grad_norm_(
-                        base_model.parameters(), max_norm=config.grad_norm
+                        base_model.parameters(), max_norm=config.grad_norm,
+                        error_if_nonfinite=config.fail_on_nonfinite,
                     )
 
                 optimizer.step()

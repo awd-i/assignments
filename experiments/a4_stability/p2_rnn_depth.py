@@ -1,6 +1,6 @@
 """Problem 2: plain RNNs, then a four-layer RNN with transformer depth tools.
 
-    uv run python -m experiments.a4_stability.p2_rnn_depth --model modern --lr .001
+    uv run python -m experiments.a4_stability.p2_rnn_depth
 """
 import math
 import torch
@@ -205,5 +205,5 @@ MODELS = dict(plain1=OneLayerRNN, plain4=PlainRNN, modern=ModernRNN,
 
 
 if __name__ == "__main__":
-    from .common import run
-    run(2, MODELS)
+    from .sweeps import launch_one
+    launch_one('rnn')  # Edit the variant and LR here.

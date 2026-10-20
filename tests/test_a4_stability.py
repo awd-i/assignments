@@ -25,6 +25,8 @@ from experiments.a4_stability import p2_rnn_depth as p2
 from experiments.a4_stability import p3_attention_residuals as p3
 from experiments.a4_stability import p4_recurrent_updates as p4
 from experiments.a4_stability.common import training_config
+from experiments.a4_stability import sweeps
+from train import TrainConfig, checked_train_config
 
 
 TINY = LMConfig('tiny', 32, 8, 16, 32, 2, 2, 2, head_dim=8)
@@ -72,6 +74,26 @@ class AlgorithmTests(unittest.TestCase):
             native = build_model(replace(cfg, model_builder=None), device='cpu')
         tokens = torch.arange(16).reshape(2, 8)
         torch.testing.assert_close(build(p1.Transformer)(tokens), native(tokens), rtol=0, atol=0)
+
+    def test_sweep_has_five_unique_rates_per_variant_and_no_diagnostics(self):
+        configs = sweeps.grid()
+        self.assertEqual(len(sweeps.VARIANTS), 41)
+        self.assertEqual(len(configs), 205)
+        self.assertEqual(len({training_run_name(c) for c in configs}), 205)
+        for name, variant in sweeps.VARIANTS.items():
+            rates = sweeps.learning_rates(name)
+            self.assertEqual(len(set(rates)), 5)
+            self.assertEqual(rates[2], variant.center)
+            for lr in rates:
+                cfg = checked_train_config(sweeps.config(name, lr))
+                self.assertEqual(cfg.metric_loggers, ())
+                self.assertEqual(training_run_name(cfg), sweeps.run_name(name, lr))
+                self.assertEqual(cfg.num_train_sequences, 600_000)
+                self.assertEqual(cfg.num_micro_batches, 1)
+        self.assertEqual(sweeps.config('d8').run_name, 'a4-d8-lr0.003')
+        for invalid in ('', '..', '../run', '/run', 'run/name', 'run\nname'):
+            with self.assertRaises(ValueError):
+                training_run_name(TrainConfig(run_name=invalid))
 
     def test_fused_tanh_matches_explicit_states_and_gradients(self):
         sequence = build(p2.PlainRNN).stack[0]
@@ -211,7 +233,7 @@ class AlgorithmTests(unittest.TestCase):
                     path.mkdir()
                     np.random.default_rng(0).integers(0, 32, size=(8, 8), dtype=np.uint16).tofile(path/'tokens.bin')
                     (path/'metadata.json').write_text(json.dumps(dict(dtype='uint16', num_sequences=8, seq_len=8)))
-                cfg = config(cls, train_dataset=TokenDatasetConfig('train', 'test', 8, path=str(root/'train')),
+                cfg = config(cls, diagnostics=True, train_dataset=TokenDatasetConfig('train', 'test', 8, path=str(root/'train')),
                              val_dataset=TokenDatasetConfig('val', 'test', 8, path=str(root/'val')),
                              num_train_sequences=8, num_epochs=2., batch_size=4, num_evals=4, warmup_steps=0,
                              data_seed=None, model_dir=str(root/'models'), wandb_online=True)

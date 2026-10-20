@@ -1,6 +1,6 @@
 """Problem 3: replace additive depth skips; leave the branches themselves fixed.
 
-    uv run python -m experiments.a4_stability.p3_attention_residuals --model rnn_block2 --lr .001
+    uv run python -m experiments.a4_stability.p3_attention_residuals
 """
 import torch
 from torch import nn
@@ -149,5 +149,5 @@ MODELS = dict(transformer_baseline=Transformer, rnn_baseline=ModernRNN,
 
 
 if __name__ == "__main__":
-    from .common import run
-    run(3, MODELS)
+    from .sweeps import launch_one
+    launch_one('rnn-block2')  # Edit the variant and LR here.
