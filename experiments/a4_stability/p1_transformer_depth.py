@@ -120,7 +120,7 @@ class TransformerBlock(nn.Module):
 
 class Transformer(AutoregressiveLM):
     residual_type, attention_type = Residual, Attention
-    model_name, num_layers, weight_decay = "d8", 8, .1
+    model_name, num_layers = "d8", 8
     use_qk_norm = True
 
     def __init__(self, config, dtype=torch.float32, qk_norm=True, tie_word_embeddings=False, dropout=0.):

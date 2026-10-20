@@ -78,11 +78,12 @@ on a `ModernRNN` subclass. Carry only `h` across time for Problem 4.
 Use a new variant/run name when changing the architecture, seed, or recipe.
 
 The recipe is width 512, vocabulary 4096, context 1024, batch 64, 600,000
-sequences, AdamW, cosine decay, 1% warmup, clipping at 1, and seed 42.
-Weight decay is 0 for plain RNNs and .1 for modern models.
-Training diagnostics are disabled by default. For your own runs, use
-`training_config(Model, lr, problem=..., diagnostics=True)` to save initial,
-early, and final profiles; automatic hooks require `wandb_online=True`.
+sequences, AdamW, linear LR decay, weight decay .1, 1% warmup, clipping
+at 1, and seed 42, inherited from `TrainConfig`. The default RMS logger
+records module activations, parameters, and parameter gradients every 100
+steps, with 100 validation evaluations per run. Detailed depth/time/attention
+diagnostics run separately on checkpoints using `measure_default.py`.
+The compile mode is `default` to avoid nested CUDA replay in the recurrent backend.
 
 The small [_runtime.py](_runtime.py) backend supplies cuDNN tanh recurrence,
 compiled 16-token editable updates, and CUDA replay. States stay connected

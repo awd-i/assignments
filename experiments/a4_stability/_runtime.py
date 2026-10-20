@@ -5,6 +5,7 @@ and cell.step(); state is never detached between chunks. Probes run eagerly.
 """
 import torch
 from torch import nn
+from module_rms_logging import log_module_rms
 
 CHUNK_SIZE = 16
 
@@ -41,7 +42,8 @@ def recurrence(sequence, x):
     if sequence.record_states:
         sequence.states = []
         return steps(sequence.cell, projected, h, sequence.states)[0]
-    compiled = x.is_cuda
+    # Sampling uses eager cell calls so the native module hooks see each step.
+    compiled = x.is_cuda and not (log_module_rms.capture and sequence.training)
     if compiled and not hasattr(sequence, '_compiled'):
         sequence._compiled = torch.compile(sequence.cell_steps, mode='default', fullgraph=True)
     runner = sequence._compiled if compiled else sequence.cell_steps
@@ -60,7 +62,7 @@ def recurrence(sequence, x):
 def run_stack(stack, inputs):
     """Capture the complete GRU stack, including its depth norms and MLPs."""
     if (inputs.is_cuda and stack.training and torch.is_grad_enabled()
-            and not hasattr(stack, '_captured')):
+            and not log_module_rms.capture and not hasattr(stack, '_captured')):
         _capture(stack, inputs)
     return stack(inputs)
 
@@ -89,6 +91,7 @@ def _capture(stack, inputs):
         matches = (x.shape, x.dtype, x.device, x.stride()) == signature
         if (stack.training and torch.is_grad_enabled() and matches and x.requires_grad
                 and not stack._inflight and not context
+                and not log_module_rms.capture
                 and torch.is_autocast_enabled('cuda') == enabled
                 and (not enabled or torch.get_autocast_dtype('cuda') == dtype)):
             stack._inflight = True

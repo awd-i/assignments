@@ -75,7 +75,7 @@ class AlgorithmTests(unittest.TestCase):
         tokens = torch.arange(16).reshape(2, 8)
         torch.testing.assert_close(build(p1.Transformer)(tokens), native(tokens), rtol=0, atol=0)
 
-    def test_sweep_has_five_unique_rates_per_variant_and_no_diagnostics(self):
+    def test_sweep_has_five_unique_rates_per_variant_and_native_recipe(self):
         configs = sweeps.grid()
         self.assertEqual(len(sweeps.VARIANTS), 41)
         self.assertEqual(len(configs), 205)
@@ -86,7 +86,11 @@ class AlgorithmTests(unittest.TestCase):
             self.assertEqual(rates[2], variant.center)
             for lr in rates:
                 cfg = checked_train_config(sweeps.config(name, lr))
-                self.assertEqual(cfg.metric_loggers, ())
+                defaults = TrainConfig()
+                for key in ('metric_loggers', 'lr_schedule', 'weight_decay', 'num_evals',
+                            'warmup_percent', 'grad_norm', 'optimizer_name', 'precision',
+                            'batch_size', 'model_seed', 'data_seed'):
+                    self.assertEqual(getattr(cfg, key), getattr(defaults, key), key)
                 self.assertEqual(training_run_name(cfg), sweeps.run_name(name, lr))
                 self.assertEqual(cfg.num_train_sequences, 600_000)
                 self.assertEqual(cfg.num_micro_batches, 1)
@@ -240,7 +244,7 @@ class AlgorithmTests(unittest.TestCase):
             self.assertEqual(len(measured['context_loss_increase']), 6)
             self.assertIn('depth', measured['last'])
 
-    def test_native_training_writes_snapshots_and_custom_checkpoint(self):
+    def test_native_training_logs_rms_and_writes_custom_checkpoints(self):
         for cls in (p3.Block2Transformer, p4.GRU):
             with self.subTest(model=cls.__name__), tempfile.TemporaryDirectory() as folder:
                 root = Path(folder)
@@ -249,23 +253,23 @@ class AlgorithmTests(unittest.TestCase):
                     path.mkdir()
                     np.random.default_rng(0).integers(0, 32, size=(8, 8), dtype=np.uint16).tofile(path/'tokens.bin')
                     (path/'metadata.json').write_text(json.dumps(dict(dtype='uint16', num_sequences=8, seq_len=8)))
-                cfg = config(cls, diagnostics=True, train_dataset=TokenDatasetConfig('train', 'test', 8, path=str(root/'train')),
+                cfg = config(cls, train_dataset=TokenDatasetConfig('train', 'test', 8, path=str(root/'train')),
                              val_dataset=TokenDatasetConfig('val', 'test', 8, path=str(root/'val')),
                              num_train_sequences=8, num_epochs=2., batch_size=4, num_evals=4, warmup_steps=0,
-                             data_seed=None, model_dir=str(root/'models'), wandb_online=True)
+                             data_seed=None, model_dir=str(root/'models'), wandb_online=True,
+                             keep_checkpoint_steps=(2,))
                 wandb = Mock()
                 wandb.init.return_value = SimpleNamespace(id='test', url='test')
                 with patch.dict(sys.modules, {'wandb': wandb}), patch('torch.cuda.device_count', return_value=0):
                     model = train(cfg)
                 run = root/'models'/training_run_name(cfg)
                 self.assertRegex(wandb.init.call_args.kwargs['id'], r'^[0-9a-f]{8}$')
-                for phase in ('initial', 'early', 'final'):
-                    self.assertIn('depth', json.loads((run/'diagnostics'/f'{phase}.json').read_text())['last'])
-                steps = [json.loads((run/'diagnostics'/f'{phase}.json').read_text())['optimizer_step']
-                         for phase in ('initial', 'early', 'final')]
-                self.assertEqual(steps, [0, 2, 4])
+                self.assertFalse((run/'diagnostics').exists())
+                self.assertEqual(torch.load(run/'step_2.pt', weights_only=False)['completed_steps'], 2)
                 rows = [call.args[0] for call in wandb.log.call_args_list]
-                self.assertTrue(any(any('early/last/depth_0/' in key for key in row) for row in rows))
+                rms = next(row for row in rows if 'logging/rms/global/activation' in row)
+                for name in ('activation', 'parameter', 'gradient'):
+                    self.assertGreater(rms[f'logging/rms/global/{name}'], 0.)
                 restored = load_model(run, precision='fp32')
                 self.assertIs(type(restored), cls)
                 for name, tensor in model.state_dict().items():

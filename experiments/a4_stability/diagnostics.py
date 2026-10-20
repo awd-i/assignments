@@ -1,14 +1,12 @@
-"""Fixed-input depth/time probes and three snapshots through the native logger.
+"""Fixed-input depth/time probes for separate checkpoint analysis.
 
 profile(model, tokens) returns full/final-token gradients on the same inputs.
 Depth entries are actual branch inputs, followed by the final stream. Branch
 ratios use raw F(N(x)) before depth gates/mixing. Temporal entries retain the
 real h_t nodes before stacking: gradients of a plotting-only stack are different.
 """
-from dataclasses import dataclass
 import json
 import math
-from pathlib import Path
 
 import torch
 from torch import nn
@@ -143,31 +141,3 @@ def save(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(clean(value), indent=2, allow_nan=False)+'\n')
 
-
-@dataclass
-class StabilityLogger:
-    probe_sequences: int = 1
-
-    def setup(self, context):
-        from train import training_run_name
-        self.path = Path(context.config.model_dir)/training_run_name(context.config)/'diagnostics'
-        self.tokens = next(iter(context.val_batches.values()))[0][:self.probe_sequences].to(next(context.model.parameters()).device)
-        if context.step == 0 and not (self.path/'initial.json').exists():
-            save(self.path/'initial.json', dict(optimizer_step=0, **profile(context.model, self.tokens)))
-
-    def __call__(self, context):
-        end = context.config.stop_at_step or int(context.config.num_train_sequences*context.config.num_epochs/context.config.batch_size)
-        phases = ([] if (self.path/'early.json').exists() else ['early'])
-        if context.step+1 >= end:
-            phases.append('final')
-        stats = {}
-        if phases:
-            measured = dict(optimizer_step=context.step+1, **profile(context.model, self.tokens))
-            for phase in phases:
-                save(self.path/f'{phase}.json', measured)
-                for objective in ('full', 'last'):
-                    for j, row in enumerate(measured[objective]['depth']):
-                        for key, value in row.items():
-                            if math.isfinite(value):
-                                stats[f'{phase}/{objective}/depth_{j}/{key}'] = value
-        return stats

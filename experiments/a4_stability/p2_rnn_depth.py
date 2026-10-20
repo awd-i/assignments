@@ -88,7 +88,7 @@ class Stack(nn.ModuleList):
 
 
 class PlainRNN(nn.Module):
-    num_layers, model_name, weight_decay = 4, "rnn4", 0.
+    num_layers, model_name = 4, "rnn4"
     cell_type = TanhCell
 
     def __init__(self, config, dtype=torch.float32, **kwargs):
@@ -143,7 +143,6 @@ class OneLayerRNN(PlainRNN):
 
 class ModernRNN(PlainRNN):
     """Four [LayerNorm -> RNN -> depth skip -> LayerNorm -> SwiGLU -> skip] blocks."""
-    weight_decay = .1
     residual_type, recurrent_type = Residual, Recurrent
 
     def __init__(self, config, **kwargs):
