@@ -74,7 +74,13 @@ def _capture(stack, inputs):
     with torch.autocast('cuda', enabled=enabled, dtype=dtype, cache_enabled=False):
         sample = inputs.detach().requires_grad_(True)
         torch.cuda.synchronize()
-        torch.cuda.make_graphed_callables(stack, (sample,), num_warmup_iters=3, allow_unused_input=True)
+        # PyTorch requires no root hooks while capturing. RMS is idle here;
+        # restore its hook before returning, including if capture fails.
+        hooks, stack._forward_hooks = stack._forward_hooks, {}
+        try:
+            torch.cuda.make_graphed_callables(stack, (sample,), num_warmup_iters=3, allow_unused_input=True)
+        finally:
+            stack._forward_hooks = hooks
         replay = stack.forward
         torch.cuda.synchronize()
     # Captured backward buffers must not become accumulated parameter gradients.
