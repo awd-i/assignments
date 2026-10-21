@@ -23,19 +23,6 @@ class Gate(nn.Module):
         return (projected + self.hidden(h)).sigmoid()
 
 
-class ConstantGate(nn.Module):
-    """A gate with no learned parameters."""
-    def __init__(self, value):
-        super().__init__()
-        self.value = value
-
-    def project(self, x):
-        return x[..., :1]  # Keeps the projection interface; forward ignores it.
-
-    def forward(self, projected, h):
-        return self.value
-
-
 class GRUCell(TanhCell):
     def __init__(self, config):
         super().__init__(config)
@@ -61,60 +48,13 @@ class GRUCell(TanhCell):
         return (1-z)*h + z*candidate
 
 
-class NoResetCell(GRUCell):
-    def make_reset(self, config):
-        return ConstantGate(1.)
-
-
-class NoUpdateCell(GRUCell):
-    """Always replace h with the reset-modulated candidate."""
-    def make_update(self, config):
-        return ConstantGate(1.)
-
-
-class FixedUpdateCell(GRUCell):
-    def make_update(self, config):
-        return ConstantGate(.5)
-
-
-class NoCarryCell(GRUCell):
-    def combine(self, h, candidate, z):
-        return z*candidate
-
-
-class NoWriteGateCell(GRUCell):
-    def combine(self, h, candidate, z):
-        return (1-z)*h + candidate
-
-
 class GRU(ModernRNN):
     cell_type = GRUCell
 
 
-class NoResetGRU(GRU):
-    cell_type = NoResetCell
-
-
-class NoUpdateGRU(GRU):
-    cell_type = NoUpdateCell
-
-
-class FixedUpdateGRU(GRU):
-    cell_type = FixedUpdateCell
-
-
-class NoCarryGRU(GRU):
-    cell_type = NoCarryCell
-
-
-class NoWriteGateGRU(GRU):
-    cell_type = NoWriteGateCell
-
-
 # TODO: subclass TanhCell or GRUCell, implement step(projected, h), and select
 # it through a ModernRNN subclass's cell_type. Carry only h across time.
-MODELS = dict(gru=GRU, tanh=ModernRNN, no_reset=NoResetGRU, no_update=NoUpdateGRU,
-              fixed_update=FixedUpdateGRU, no_carry=NoCarryGRU, no_write_gate=NoWriteGateGRU)
+MODELS = dict(gru=GRU, tanh=ModernRNN)
 
 
 if __name__ == "__main__":

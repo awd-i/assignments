@@ -13,27 +13,37 @@ repository root and use your usual data, W&B settings, and Modal environment.
 Each architecture is a short class that overrides the relevant component or
 update equation. Read its parent for the shared algorithm.
 
+P3's EMA variants use `x' = beta*x + F(N(x))`: only the carried stream decays.
+Half-and-half uses `x_next = .5*x + .5*x_previous + F(N(x))`, mixing the two
+preceding stream states. Its first depth step is the usual `x + F(N(x))`.
+Each recurrent/attention branch and each MLP counts as one depth step.
+
 ## Supplied training runs
 
-The course reference sweep is **41 variants × 5 learning rates = 205 runs**.
-It is being prepared in the public
+The course reference sweep covers **P1 and P2 only: 21 variants × 5 learning rates = 105 outcomes**.
+It is published in the public
 [course W&B project](https://wandb.ai/hashimoto-group/public-alchemy-a4/overview),
 tagged `a4-reference` and `a4-release-v1`. The five rates are
 `(.25, .5, 1, 2, 4) × center`; [sweeps.py](sweeps.py) specifies the centers.
 Baseline aliases across problems reuse the same runs.
 
-Once the release is published, you can use these runs for all supplied
-architecture comparisons in Problems 1–4. You do not need to repeat those LR
-sweeps. Analyze the results and checkpoints, measure diagnostics, and train
-your own proposals for Problems 3 and 4. Add runs if your investigation needs
-another setting or an LR extension.
+Use these runs for the architecture comparisons in Problems 1 and 2; you do
+not need to repeat those LR sweeps. `sweeps.PROVIDED_VARIANTS` lists their names,
+and `sweeps.grid()` returns only these reference configs. Analyze the results
+and checkpoints, and measure diagnostics. Add follow-up runs when useful.
 
-Checkpoints will be in `cs312-shared-data`, volume `hard-dl-dclm-v1`, mounted
-read-only at `/root/shared_data/a4_stability`. Its `manifest.json` will list
+No P3 or P4 training runs or checkpoints are supplied. For P3, train the
+fixed/full/blocked residual variants and your own proposal; the implementations
+are provided. For P4, train the base GRU, choose and implement your own ablations,
+and develop a new update. The starter includes the GRU implementation without
+predefined component ablations. Reuse P1/P2's additive and tanh baselines.
+
+P1/P2 checkpoints are in `cs312-shared-data`, volume `hard-dl-dclm-v1`, mounted
+read-only at `/root/shared_data/a4_stability`. Its `manifest.json` lists
 all outcomes, public run links, model definitions, and available checkpoints.
 Finite completed runs have final weights and an `early/` checkpoint from
 step 100. A divergent run has an outcome and W&B link, without final weights.
-The manifest is published after the entire grid finishes and is checked.
+The manifest contains only P1/P2 outcomes.
 
 Names are identical in W&B, on Modal, and locally, for example:
 `a4-rnn-no-residual-lr0.001`.
@@ -43,7 +53,6 @@ Names are identical in W&B, on Modal, and locally, for example:
 [measure_default.py](measure_default.py) is a complete example: load the
 released default d8, take a held-out input, compute depth/attention gradients
 and paired context-removal losses, and save the returned JSON locally.
-After the checkpoint release:
 
 ```bash
 uv run python -m experiments.a4_stability.measure_default
@@ -68,8 +77,9 @@ launch_one('rnn', .001, local=True)        # The same run on a local GPU.
 ```
 
 The module entrypoints have editable Python calls, without argument parsers.
-`sweeps.VARIANTS` maps each short name to its model class, problem, and LR
-center. Students' new runs use their own configured W&B project. Staff pass
+`sweeps.VARIANTS` maps each available implementation to its model class,
+problem, and LR center; only `PROVIDED_VARIANTS` have released sweeps.
+Students' new runs use their own configured W&B project. Staff pass
 public-project settings to these same configs.
 
 For a new architecture, subclass a component in the relevant problem file,

@@ -10,13 +10,28 @@ from .p2_rnn_depth import ModernRNN
 
 
 class DepthEMA:
-    """x' = beta*x + (1-beta)*F(N(x)), once per recurrent/attention or MLP branch."""
+    """x' = beta*x + F(N(x)), once per recurrent/attention or MLP branch."""
     residual_type = NoResidual  # branch(x) now returns the raw F(N(x)).
     beta = .5
 
     def run_depth(self, x, **context):
         for branch in self.branches():
-            x = self.beta*x + (1-self.beta)*branch(x, **context)
+            x = self.beta*x + branch(x, **context)
+        return x
+
+
+class DepthHalf:
+    """Add F(N(x)) to the mean of the previous two depth-stream states.
+
+    The first branch uses the embedding alone as its residual stream.
+    """
+    residual_type = NoResidual
+
+    def run_depth(self, x, **context):
+        previous = None
+        for branch in self.branches():
+            residual = x if previous is None else .5*(x+previous)
+            previous, x = x, residual + branch(x, **context)
         return x
 
 
@@ -81,15 +96,15 @@ class UniformDepth(AttentionDepth):
     mix_type = UniformMix
 
 
-class HalfTransformer(DepthEMA, Transformer):
-    beta = .5
+class HalfTransformer(DepthHalf, Transformer):
+    pass
 
 
-class EMA01Transformer(HalfTransformer):
+class EMA01Transformer(DepthEMA, Transformer):
     beta = .1
 
 
-class EMA09Transformer(HalfTransformer):
+class EMA09Transformer(DepthEMA, Transformer):
     beta = .9
 
 
@@ -109,15 +124,15 @@ class Block4Transformer(AttentionTransformer):
     block_size = 4
 
 
-class HalfRNN(DepthEMA, ModernRNN):
-    beta = .5
+class HalfRNN(DepthHalf, ModernRNN):
+    pass
 
 
-class EMA01RNN(HalfRNN):
+class EMA01RNN(DepthEMA, ModernRNN):
     beta = .1
 
 
-class EMA09RNN(HalfRNN):
+class EMA09RNN(DepthEMA, ModernRNN):
     beta = .9
 
 
@@ -137,7 +152,7 @@ class Block4RNN(AttentionRNN):
     block_size = 4
 
 
-# TODO: subclass DepthEMA or AttentionDepth to try your own depth scheme.
+# TODO: subclass DepthEMA, DepthHalf, or AttentionDepth to try your own depth scheme.
 # Add the resulting model class to MODELS, with a new name for its checkpoints.
 MODELS = dict(transformer_baseline=Transformer, rnn_baseline=ModernRNN,
               transformer_half=HalfTransformer, transformer_ema01=EMA01Transformer,

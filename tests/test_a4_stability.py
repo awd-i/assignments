@@ -77,9 +77,12 @@ class AlgorithmTests(unittest.TestCase):
 
     def test_sweep_has_five_unique_rates_per_variant_and_native_recipe(self):
         configs = sweeps.grid()
-        self.assertEqual(len(sweeps.VARIANTS), 41)
-        self.assertEqual(len(configs), 205)
-        self.assertEqual(len({training_run_name(c) for c in configs}), 205)
+        self.assertEqual(len(sweeps.PROVIDED_VARIANTS), 21)
+        self.assertEqual(len(configs), 105)
+        self.assertEqual(len({training_run_name(c) for c in configs}), 105)
+        self.assertTrue(all(sweeps.VARIANTS[name].problem in (1, 2)
+                            for name in sweeps.PROVIDED_VARIANTS))
+        self.assertEqual(set(p4.MODELS), {'gru', 'tanh'})
         for name, variant in sweeps.VARIANTS.items():
             rates = sweeps.learning_rates(name)
             self.assertEqual(len(set(rates)), 5)
@@ -114,24 +117,13 @@ class AlgorithmTests(unittest.TestCase):
             torch.testing.assert_close(p.grad, q.grad)
         self.assertFalse(any('_fused' in k for k in sequence.state_dict()))
 
-    def test_gru_handout_equation_and_gate_ablations(self):
+    def test_gru_handout_equation(self):
         x, h = torch.randn(2, 16), torch.randn(2, 16)
-        for cls in (p4.GRUCell, p4.NoResetCell, p4.NoUpdateCell,
-                    p4.FixedUpdateCell, p4.NoCarryCell, p4.NoWriteGateCell):
-            with self.subTest(cell=cls.__name__):
-                cell = cls(TINY)
-                r = 1. if cls is p4.NoResetCell else torch.sigmoid(cell.reset.input(x) + cell.reset.hidden(h))
-                z = (1. if cls is p4.NoUpdateCell else .5 if cls is p4.FixedUpdateCell else
-                     torch.sigmoid(cell.update.input(x) + cell.update.hidden(h)))
-                candidate = torch.tanh(cell.input(x) + F.linear(r*h, cell.hidden.weight, cell.hidden.bias))
-                expected = ((z*candidate) if cls is p4.NoCarryCell else
-                            (1-z)*h + candidate if cls is p4.NoWriteGateCell else
-                            (1-z)*h + z*candidate)
-                torch.testing.assert_close(cell.step(cell.project(x), h), expected)
-                if cls is p4.NoResetCell:
-                    self.assertEqual(list(cell.reset.parameters()), [])
-                if cls in (p4.NoUpdateCell, p4.FixedUpdateCell):
-                    self.assertEqual(list(cell.update.parameters()), [])
+        cell = p4.GRUCell(TINY)
+        r = torch.sigmoid(cell.reset.input(x) + cell.reset.hidden(h))
+        z = torch.sigmoid(cell.update.input(x) + cell.update.hidden(h))
+        candidate = torch.tanh(cell.input(x) + F.linear(r*h, cell.hidden.weight, cell.hidden.bias))
+        torch.testing.assert_close(cell.step(cell.project(x), h), (1-z)*h + z*candidate)
 
     def test_chunk_boundaries_preserve_bptt(self):
         sequence = p2.Recurrent(TINY, p4.GRUCell)
@@ -152,7 +144,7 @@ class AlgorithmTests(unittest.TestCase):
 
     def test_editable_cells_compile_with_the_same_gradients(self):
         # Check the editable cell path without compiling a CUDA job.
-        for cls in (p4.GRUCell, p4.NoResetCell, p4.FixedUpdateCell, p4.NoWriteGateCell):
+        for cls in (p4.GRUCell,):
             with self.subTest(cell=cls.__name__):
                 sequence = p2.Recurrent(TINY, cls)
                 other = copy.deepcopy(sequence)
@@ -168,6 +160,37 @@ class AlgorithmTests(unittest.TestCase):
                 torch.testing.assert_close(y.grad, x.grad)
                 for p, q in zip(sequence.parameters(), other.parameters()):
                     torch.testing.assert_close(p.grad, q.grad)
+
+    def test_ema_keeps_branch_injections_at_full_strength(self):
+        # Two constant branch injections (2, then 3) isolate the carry decay.
+        for classes, value, gradient in (
+                ((p3.EMA01Transformer, p3.EMA01RNN), 3.2, .01),
+                ((p3.EMA09Transformer, p3.EMA09RNN), 4.8, .81)):
+            for cls in classes:
+                with self.subTest(model=cls.__name__):
+                    model = build(cls)
+                    x = torch.zeros(2, 8, 16, requires_grad=True)
+                    branches = (lambda x: torch.full_like(x, 2.),
+                                lambda x: torch.full_like(x, 3.))
+                    with patch.object(model, 'branches', return_value=branches):
+                        result = model.run_depth(x)
+                    torch.testing.assert_close(result, torch.full_like(x, value))
+                    result.sum().backward()
+                    torch.testing.assert_close(x.grad, torch.full_like(x, gradient))
+
+    def test_half_mixes_two_previous_stream_states_and_keeps_gradients(self):
+        for cls in (p3.HalfTransformer, p3.HalfRNN):
+            model = build(cls)
+            branches = (lambda x: 2*x, lambda x: 3*x, lambda x: 5*x)
+            # From x0=1: x1=3, x2=.5*3+.5*1+9=11, x3=5.5+1.5+55=62.
+            for count, expected in enumerate((3., 11., 62.), 1):
+                with self.subTest(model=cls.__name__, steps=count):
+                    x = torch.ones(2, 8, 16, requires_grad=True)
+                    with patch.object(model, 'branches', return_value=branches[:count]):
+                        result = model.run_depth(x)
+                    torch.testing.assert_close(result, torch.full_like(x, expected))
+                    result.sum().backward()
+                    torch.testing.assert_close(x.grad, torch.full_like(x, expected))
 
     def test_zero_query_attention_equals_uniform_raw_history(self):
         for attention, uniform in ((p3.AttentionTransformer, p3.UniformTransformer),

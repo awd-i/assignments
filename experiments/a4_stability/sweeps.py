@@ -1,4 +1,4 @@
-"""Five-rate reference grid; the same configs run on a local GPU or Modal.
+"""P1/P2 reference grid and configs for students' local GPU or Modal runs.
 
 Edit the call at the bottom, or import config(), learning_rates(), and launch().
 Students use their own W&B project from utils.py, as usual.
@@ -22,6 +22,7 @@ class Variant:
 
 
 # Centers are informed by the instructor trial, not selected from these runs.
+# P3 implementations and the base GRU support student experiments; no runs are supplied.
 VARIANTS = {}
 for key, model in p1.MODELS.items():
     name = 'd8' if key == 'baseline' else 'd8-' + key.replace('_', '-')
@@ -41,7 +42,9 @@ for key, model in p4.MODELS.items():
     if key == 'tanh':
         continue  # Reuse the modern tanh RNN.
     name = 'gru' if key == 'gru' else 'gru-' + key.replace('_', '-')
-    VARIANTS[name] = Variant(4, model, .001 if key in ('no_update', 'no_write_gate') else .003)
+    VARIANTS[name] = Variant(4, model, .003)
+
+PROVIDED_VARIANTS = tuple(name for name, variant in VARIANTS.items() if variant.problem in (1, 2))
 
 
 def learning_rates(name):
@@ -64,7 +67,7 @@ def config(name, lr=None, **overrides):
 
 
 def grid(names=None):
-    return [config(name, lr) for name in (VARIANTS if names is None else names)
+    return [config(name, lr) for name in (PROVIDED_VARIANTS if names is None else names)
             for lr in learning_rates(name)]
 
 
