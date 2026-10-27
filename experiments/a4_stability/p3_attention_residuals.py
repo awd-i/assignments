@@ -152,15 +152,46 @@ class Block4RNN(AttentionRNN):
     block_size = 4
 
 
-# TODO: subclass DepthEMA, DepthHalf, or AttentionDepth to try your own depth scheme.
-# Add the resulting model class to MODELS, with a new name for its checkpoints.
+class GatedRouteDepth(AttentionDepth):
+    """Keep the additive stream; add a zero-initialized, gated attention read.
+
+    x_{j+1} = x_j + F_j(x_j + g_j * Attn_j(sources)), sources = [x_0, u_1, .., u_j].
+    The final read is x_L + g_L * Attn_L(sources). With g = 0 this is exactly the
+    additive baseline, so routing is learned only where it lowers the loss.
+    """
+    def __init__(self, config, **kwargs):
+        super().__init__(config, **kwargs)
+        self.gates = nn.Parameter(torch.zeros(len(self.branches())+1, dtype=next(self.parameters()).dtype))
+
+    def initialize_parameters(self):
+        super().initialize_parameters()
+        nn.init.zeros_(self.gates)
+
+    def run_depth(self, x, **context):
+        sources = [x]
+        for j, branch in enumerate(self.branches()):
+            update = branch(x + self.gates[j]*self.routers[j](sources), **context)
+            sources.append(update)
+            x = x + update
+        return x + self.gates[-1]*self.routers[-1](sources)
+
+
+class RouteTransformer(GatedRouteDepth, Transformer):
+    pass
+
+
+class RouteRNN(GatedRouteDepth, ModernRNN):
+    pass
+
+
 MODELS = dict(transformer_baseline=Transformer, rnn_baseline=ModernRNN,
               transformer_half=HalfTransformer, transformer_ema01=EMA01Transformer,
               transformer_ema09=EMA09Transformer, transformer_uniform=UniformTransformer,
               transformer_attention=AttentionTransformer, transformer_block2=Block2Transformer,
               transformer_block4=Block4Transformer, rnn_half=HalfRNN, rnn_ema01=EMA01RNN,
               rnn_ema09=EMA09RNN, rnn_uniform=UniformRNN, rnn_attention=AttentionRNN,
-              rnn_block2=Block2RNN, rnn_block4=Block4RNN)
+              rnn_block2=Block2RNN, rnn_block4=Block4RNN,
+              transformer_route=RouteTransformer, rnn_route=RouteRNN)
 
 
 if __name__ == "__main__":
