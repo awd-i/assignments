@@ -92,6 +92,10 @@ def _completed_model_exists(config: "TrainConfig") -> tuple[bool, str | None]:
     secrets=secrets(),
     gpu=DEFAULT_MODAL_GPU,
     max_containers=1,
+    # One job per container: a reused process keeps torch.compile's recompile
+    # cache and an unfinished wandb run across jobs, so later jobs crash with
+    # RecompileLimitExceeded or log into the previous job's W&B run.
+    single_use_containers=True,
     retries=modal.Retries(initial_delay=0.0, max_retries=10),
     timeout=24 * 60 * 60,
 )

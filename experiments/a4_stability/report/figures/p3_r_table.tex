@@ -1,0 +1,12 @@
+\begin{tabular}{lp{0.78\linewidth}}\toprule
+variant & final validation loss per peak rate\\\midrule
+rnn (supplied) & $\lr$=0.002: 3.516 (best of five) \\
+rnn-half & $\lr$=0.001: \textbf{3.503}; $\lr$=0.002: 3.538 \\
+rnn-ema01 & $\lr$=0.001: \textbf{3.572}; $\lr$=0.002: 3.589 \\
+rnn-ema09 & $\lr$=0.001: \textbf{3.505}; $\lr$=0.002: 3.512 \\
+rnn-uniform & $\lr$=0.001: \textbf{3.572}; $\lr$=0.002: 3.583 \\
+rnn-attention & $\lr$=0.001: 3.550; $\lr$=0.002: \textbf{3.547} \\
+rnn-block2 & $\lr$=0.001: \textbf{3.535}; $\lr$=0.002: 3.577 \\
+rnn-block4 & $\lr$=0.001: \textbf{3.515}; $\lr$=0.002: 3.578 \\
+rnn-route & $\lr$=0.001: \textbf{3.518}; $\lr$=0.002: 3.522 \\
+\bottomrule\end{tabular}
