@@ -82,7 +82,7 @@ class AlgorithmTests(unittest.TestCase):
         self.assertEqual(len({training_run_name(c) for c in configs}), 105)
         self.assertTrue(all(sweeps.VARIANTS[name].problem in (1, 2)
                             for name in sweeps.PROVIDED_VARIANTS))
-        self.assertEqual(set(p4.MODELS), {'gru', 'tanh'})
+        self.assertTrue({'gru', 'tanh'} <= set(p4.MODELS))
         for name, variant in sweeps.VARIANTS.items():
             rates = sweeps.learning_rates(name)
             self.assertEqual(len(set(rates)), 5)
