@@ -19,6 +19,19 @@ WAVES = {
     'wave2': [('d8-route', (.003, .006)), ('rnn-route', (.001, .002)),
               ('gru-dualnorm', (.003, .006)), ('gru-dual', (.003, .006)),
               ('gru-noreset', (.003,)), ('gru-inputgate', (.003,)), ('gru-linear', (.003,))],
+    # The GRU's best rate was the top of its range, so extend it once.
+    'gru_extend': [('gru', (.012,))],
+    # EMA 0.1 collapsed to the unigram loss at both rates; check a lower rate once.
+    'ema01_extend': [('d8-ema01', (.00075,))],
+    # gru-dual went non-finite at 0.003 (step ~1700); retry at lower rates.
+    'dual_extend': [('gru-dual', (.0015, .00075))],
+    # block2's best rate (0.009) was the top of its range, so extend it once.
+    'block2_extend': [('d8-block2', (.018,))],
+    # Jobs that crashed with RecompileLimitExceeded in reused containers, plus the
+    # last wave1 jobs that would have run in those containers.
+    'relaunch': [('rnn-block2', (.001, .002)), ('rnn-block4', (.001, .002)),
+                 ('d8-attention', (.003, .006)),
+                 ('gru-noreset', (.003,)), ('gru-inputgate', (.003,)), ('gru-linear', (.003,))],
 }
 
 

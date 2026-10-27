@@ -87,6 +87,21 @@ def measure(jobs, device='cuda'):
                 continue
             start = time.time()
             try:
+                if stage == 'val':
+                    import torch.nn.functional as F
+                    model = load_model(root/run, device=device, precision='fp32').float().to(device)
+                    model.eval()
+                    total, count = 0., 0
+                    with torch.no_grad():
+                        for i in range(0, len(validation), 32):
+                            ids = torch.tensor(validation[i:i+32]['input_ids'].astype('int64'), device=device)
+                            logits = model(ids[:, :-1])
+                            total += F.cross_entropy(logits.flatten(0, 1).float(), ids[:, 1:].flatten(), reduction='sum').item()
+                            count += ids[:, 1:].numel()
+                    stats = dict(val_loss=total/count, sequences=len(validation), seconds=time.time()-start)
+                    save(out, stats)
+                    done.append(f'{run}/{stage} {stats["val_loss"]:.4f} {stats["seconds"]:.0f}s')
+                    continue
                 if stage == 'position':
                     model = load_model(root/run, device=device, precision='fp32').float().to(device)
                     stats = position_profile(model, tokens)
@@ -162,9 +177,9 @@ if __name__ == '__main__':
     import modal
     from modal_utils import app, build_image, VOLUME_MOUNTS, MODAL_ENVIRONMENT
     mode, names = sys.argv[1], sys.argv[2:]
-    if mode == 'position':
+    if mode in ('position', 'val'):
         root = SHARED_ROOT if os.environ.get('A4_ROOT', 'shared') == 'shared' else MY_ROOT
-        jobs = [dict(run=run, root=str(root), stages=('position',)) for run in names]
+        jobs = [dict(run=run, root=str(root), stages=(mode,)) for run in names]
     elif mode == 'shared':
         manifest = json.loads(Path(os.environ.get('A4_MANIFEST', os.path.expanduser('~/a4work/shared/manifest.json'))).read_text())
         jobs = shared_jobs(manifest)

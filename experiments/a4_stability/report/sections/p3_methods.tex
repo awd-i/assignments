@@ -1,0 +1,6 @@
+\paragraph{My own scheme: gated attention reads on top of the additive stream.}
+The supplied variants replace the additive residual, and the ones that route (uniform, attention, blocked attention) must learn where each branch reads from. My variant keeps the additive stream and adds the routed read as a correction that starts switched off:
+\[
+x_{j+1} = x_j + F_j\!\left(x_j + g_j\,\mathrm{Attn}_j(x_0, u_1, \dots, u_j)\right), \qquad y = x_L + g_L\,\mathrm{Attn}_L(x_0, u_1, \dots, u_L),
+\]
+where $u_j = F_j(\cdot)$ are the raw branch outputs, $\mathrm{Attn}_j$ is the same normalized key, learned query mixer as the full attention residual variant and $g_j$ are scalar gates initialised at zero. At initialisation this model is bit for bit the baseline, so it inherits the baseline's signal propagation and its learning rate; the routers only matter once $g_j$ moves away from zero, and the gradient of $g_j$ is the inner product of the routed read with the branch input gradient, so a gate only opens when the routed read helps. Class \texttt{GatedRouteDepth} in \texttt{p3\_attention\_residuals.py}; variants \texttt{d8-route} and \texttt{rnn-route}.

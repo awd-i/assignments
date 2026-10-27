@@ -1,0 +1,12 @@
+\paragraph{Ablations.} Three GRU ablations isolate the parts of the gated update, each run at the GRU centre rate $\lr=0.003$ because each GRU style run costs about 90 minutes on an H100:
+\begin{itemize}\setlength\itemsep{0pt}
+  \item \texttt{gru-noreset}: $r\equiv 1$, the candidate always reads the whole hidden state.
+  \item \texttt{gru-inputgate}: $r$ and $z$ are computed from $x_t$ only (no recurrent term in the gates); the candidate still reads $r\odot h$.
+  \item \texttt{gru-linear}: the candidate drops its tanh, so the update is a gated linear map of $(x_t, r\odot h)$.
+\end{itemize}
+
+\paragraph{New update: decoupled forget and write gates.} The GRU writes with a convex combination $h' = (1-z)h + z\tilde h$, so it cannot keep $h$ and add new content at the same time, and it cannot clear $h$ without writing the candidate at full strength. My cell separates the two decisions and drops the reset gate:
+\[
+f_t = \sigma(W_f x_t + U_f h_{t-1}),\quad i_t = \sigma(W_i x_t + U_i h_{t-1}),\quad \tilde h_t = \tanh(W x_t + U h_{t-1}),\quad h_t = \phi\!\left(f_t\odot h_{t-1} + i_t\odot \tilde h_t\right),
+\]
+with the same parameter count as the GRU (three input and three recurrent matrices). Only $h$ is carried across time. \texttt{gru-dual} uses $\phi = \mathrm{id}$; \texttt{gru-dualnorm} uses a parameter free RMS normalisation $\phi(v) = v/\mathrm{rms}(v)$, which keeps the hidden state on the unit RMS sphere so that the unbounded $f\odot h + i\odot\tilde h$ sum cannot grow or shrink across 1024 steps. Classes \texttt{DualGateCell} and \texttt{DualGateNormCell} in \texttt{p4\_recurrent\_updates.py}.
