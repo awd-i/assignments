@@ -1,8 +1,0 @@
-\section{Divergent and failed runs}
-\begin{itemize}\setlength\itemsep{0pt}
-\item Non-finite gradients (run stopped by the clipping check): d8-no-prenorm at $\lr=0.002$ (step 747) and $0.004$ (step 82); rnn-no-prenorm at $0.004$.
-\item Collapsed to the unigram loss 6.875 without a NaN: d8-no-residual at all five rates; d8-postnorm at $0.004$; rnn4 at $0.002$ and $0.004$.
-\item Trained but far off the sweep: d8-no-qknorm at $0.006$ (3.83) and $0.012$ (4.20); rnn-postnorm at $0.002$ (4.26) and $0.004$ (6.39), whose global activation RMS peaked near 4000 before it fell back.
-\item Probe failures: the final checkpoint of rnn-gated-norm at $\lr=0.001$ was not probed in the first CPU batch and was rerun with the P3/P4 probes.
-\studentfailures
-\end{itemize}
