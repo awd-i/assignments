@@ -10,12 +10,16 @@ For the model, data, optimizer, loss, and checkpointing details, read
 For running on your own CUDA GPU or a non-course Slurm cluster without Modal, read
 [gpu/README.md](gpu/README.md).
 
+For using Modal in your own workspace without access to the course's shared data,
+read [README_MODAL_OWN_WORKSPACE.md](README_MODAL_OWN_WORKSPACE.md).
+
 Course handouts are distributed separately.
 
-This release includes only the default-run and LR-tuning examples below. The
-assignment PDF includes code snippets and names problem-specific experiment
-files; those files are not bundled. Create your own experiments using the
-LR-tuning example as a template.
+The default-run and LR-tuning examples below cover setup and the experiment
+workflow. Assignment starters and measurement tools are in
+[experiments/a3_optimization](experiments/a3_optimization/README.md) and
+[experiments/a4_stability](experiments/a4_stability/README.md). The assignment
+handouts are distributed separately; exploratory solutions are not bundled.
 
 
 ## 0. Setting up Modal
